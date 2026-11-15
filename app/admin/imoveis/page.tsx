@@ -16,6 +16,7 @@ type AdminProperty = {
   status: string | null;
   available_from: string | null;
   hidden: boolean | null;
+  validation_status: string | null;
   updated_at: string | null;
 };
 
@@ -64,7 +65,7 @@ export default function AdminImoveisPage() {
         // autorizadas para cada função. Nunca usar service_role no navegador.
         const { data: properties, error: queryError } = await adminSupabase
           .from('properties')
-          .select('id,title,type,postcode,region,price,price_frequency,status,available_from,hidden,updated_at')
+          .select('id,title,type,postcode,region,price,price_frequency,status,available_from,hidden,validation_status,updated_at')
           .order('updated_at', { ascending: false })
           .limit(101);
 
@@ -100,7 +101,7 @@ export default function AdminImoveisPage() {
         <div>
           <h1 className="font-display text-3xl text-ink">Imóveis cadastrados</h1>
           <p className="mt-2 text-sm text-slate-soft">
-            Primeira versão de consulta interna. Nenhum imóvel será alterado nesta tela.
+            Consulta de imóveis e edição dos rascunhos ocultos. A publicação permanece desabilitada.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -170,6 +171,13 @@ export default function AdminImoveisPage() {
                     </span>
                   )}
                 </div>
+                {canCreate && property.status === 'inactive' &&
+                  property.hidden === true && property.validation_status === 'incomplete' && (
+                    <Link href={`/admin/imoveis/${encodeURIComponent(property.id)}`}
+                      className="mt-4 inline-block rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-ink">
+                      Editar rascunho
+                    </Link>
+                  )}
               </article>
             ))}
           </div>
