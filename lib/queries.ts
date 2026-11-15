@@ -1,0 +1,148 @@
+import { supabase } from './supabase';
+import type { PropertyPublic, PropertyPhoto, PropertyFilters, PropertyWithPhotos } from './types';
+import { isTrustedPropertyPhotoUrl } from './photo-url';
+
+// ----------------------------------------------------------------------------
+// REGRA DE OURO: todo acesso a imóvel neste arquivo lê de `properties_public`,
+// nunca de `properties`. A view já garante status='available', hidden=false
+// e validation_status='ok' — nenhuma tela pode esquecer esse filtro porque
+// ele não existe aqui para esquecer.
+// ----------------------------------------------------------------------------
+
+async function attachPhotos<T extends PropertyPublic>(
+  properties: T[]
+): Promise<(T & { photos: string[] })[]> {
+  if (properties.length === 0) return [];
+
+  const ids = properties.map((p) => p.id);
+  const { data: photos, error } = await supabase
+    .from('property_photos')
+    .select('property_id, url, sort_order')
+    .in('property_id', ids)
+    .order('sort_order', { ascending: true });
+
+  if (error) {
+    console.error('[queries] erro ao buscar fotos:', error.message);
+  }
+
+  const photosByProperty = new Map<string, string[]>();
+  for (const photo of (photos ?? []) as Pick<PropertyPhoto, 'property_id' | 'url' | 'sort_order'>[]) {
+    const list = photosByProperty.get(photo.property_id) ?? [];
+    if (isTrustedPropertyPhotoUrl(photo.url)) list.push(photo.url);
+    photosByProperty.set(photo.property_id, list);
+  }
+
+  return properties.map((p) => ({ ...p, photos: photosByProperty.get(p.id) ?? [] }));
+}
+
+export async function getFeaturedProperties(limit = 6): Promise<PropertyWithPhotos[]> {
+  const { data, error } = await supabase
+    .from('properties_public')
+    .select('*')
+    .eq('featured', true)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[queries] erro ao buscar destaques:', error.message);
+    return [];
+  }
+  return attachPhotos((data ?? []) as PropertyPublic[]);
+}
+
+export async function getNewProperties(limit = 6): Promise<PropertyWithPhotos[]> {
+  const { data, error } = await supabase
+    .from('properties_public')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[queries] erro ao buscar novidades:', error.message);
+    return [];
+  }
+  return attachPhotos((data ?? []) as PropertyPublic[]);
+}
+
+export async function getProperties(
+  filters: PropertyFilters = {},
+  limit = 24
+): Promise<PropertyWithPhotos[]> {
+  let query = supabase.from('properties_public').select('*');
+
+  if (filters.type) query = query.eq('type', filters.type);
+  if (filters.occupancy) query = query.eq('occupancy', filters.occupancy);
+  if (filters.region) query = query.eq('region', filters.region);
+  if (filters.maxPrice) query = query.lte('price', filters.maxPrice);
+  if (filters.minBedrooms) query = query.gte('bedrooms', filters.minBedrooms);
+  if (filters.availableFrom) query = query.lte('available_from', filters.availableFrom);
+
+  const { data, error } = await query.order('featured', { ascending: false }).order('created_at', { ascending: false }).limit(limit);
+
+  if (error) {
+    console.error('[queries] erro ao buscar imóveis:', error.message);
+    return [];
+  }
+  return attachPhotos((data ?? []) as PropertyPublic[]);
+}
+
+export async function getPropertyById(id: string): Promise<PropertyWithPhotos | null> {
+  const { data, error } = await supabase
+    .from('properties_public')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[queries] erro ao buscar imóvel:', error.message);
+    return null;
+  }
+  if (!data) return null;
+
+  const [withPhotos] = await attachPhotos([data as PropertyPublic]);
+  return withPhotos;
+}
+
+// Filtros dinâmicos: nascem do que existe de fato em `properties_public`,
+// nunca de uma lista fixa no código. Se não houver Studio hoje, Studio não
+// aparece; se surgir amanhã, aparece sozinho na próxima visita.
+export async function getAvailableTypes(): Promise<string[]> {
+  const { data, error } = await supabase.from('properties_public').select('type');
+  if (error || !data) return [];
+  return Array.from(new Set(data.map((row) => row.type))).sort();
+}
+
+export async function getAvailableRegions(): Promise<string[]> {
+  const { data, error } = await supabase.from('properties_public').select('region');
+  if (error || !data) return [];
+  return Array.from(
+    new Set(data.map((row) => row.region).filter((region): region is string => Boolean(region)))
+  ).sort();
+}
+
+// Sugestões quando um imóvel não está mais disponível: mesma região, tipo
+// semelhante, faixa de preço parecida.
+//
+// LIMITAÇÃO CONHECIDA: como `properties_public` só contém imóveis
+// `status='available'`, um imóvel alugado desaparece inteiramente da view —
+// não há como recuperar sua região/tipo depois disso sem ler a tabela
+// privada (que o anon não pode). Por isso esta função só é útil quando já
+// temos os dados do imóvel de referência em mãos (ex. "imóveis parecidos"
+// numa página que carregou com sucesso), não para o caso de um ID que sumiu.
+// Para esse segundo caso, a página usa um fallback genérico (getNewProperties).
+export async function getSimilarProperties(
+  reference: Pick<PropertyPublic, 'region' | 'type' | 'price' | 'id'>,
+  limit = 4
+): Promise<PropertyWithPhotos[]> {
+  let query = supabase.from('properties_public').select('*').neq('id', reference.id);
+
+  if (reference.region) query = query.eq('region', reference.region);
+  if (reference.type) query = query.eq('type', reference.type);
+
+  const { data, error } = await query.limit(limit);
+  if (error) {
+    console.error('[queries] erro ao buscar imóveis semelhantes:', error.message);
+    return [];
+  }
+  return attachPhotos((data ?? []) as PropertyPublic[]);
+}

@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+@layer components {
+  .field {
+    @apply rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-ink outline-none ring-route-gold/40 focus:ring-2;
+  }
+}
