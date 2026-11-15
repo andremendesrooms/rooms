@@ -48,6 +48,7 @@ export default function EditarImovelPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [confirmedPublicChange, setConfirmedPublicChange] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -62,7 +63,7 @@ export default function EditarImovelPage() {
           .from('admin_users').select('role').eq('id', userData.user.id)
           .eq('active', true).maybeSingle();
         if (roleError || !member || !['super_admin', 'manager'].includes(member.role)) {
-          if (alive) setError('Somente administradores e gerentes podem editar rascunhos.');
+          if (alive) setError('Somente administradores e gerentes podem editar imóveis.');
           return;
         }
         const { data, error: queryError } = await adminSupabase
@@ -76,11 +77,6 @@ export default function EditarImovelPage() {
           return;
         }
         const record = data as Draft;
-        if (record.status !== 'inactive' || record.hidden !== true ||
-            record.validation_status !== 'incomplete') {
-          setError('Por segurança, esta primeira versão permite editar apenas rascunhos inativos, incompletos e ocultos. Os imóveis publicados ainda não podem ser alterados aqui.');
-          return;
-        }
         setDraft(record);
         setForm(asForm(record));
       } catch {
@@ -104,6 +100,13 @@ export default function EditarImovelPage() {
     setError('');
     setSuccess('');
 
+    const publicNow = draft.status === 'available' &&
+      draft.hidden === false && draft.validation_status === 'ok';
+    if (publicNow && !confirmedPublicChange) {
+      setError('Confirme que entendeu que estas alterações podem aparecer imediatamente no catálogo público.');
+      return;
+    }
+
     const postcode = form.postcode.trim().toUpperCase();
     if (!form.type || (!postcode && !form.address.trim())) {
       setError('Informe o tipo do imóvel e um postcode ou endereço.');
@@ -114,10 +117,17 @@ export default function EditarImovelPage() {
       setError('O aluguel deve ser um número maior que zero.');
       return;
     }
+    if (publicNow && priceValue === null) {
+      setError('O preço é obrigatório para editar um imóvel publicado. Se precisar retirar o preço do anúncio, primeiro altere sua situação em um fluxo de publicação apropriado.');
+      return;
+    }
     const bedroomsValue = form.bedrooms.trim() ? Number(form.bedrooms) : null;
     if (bedroomsValue !== null &&
         (!Number.isInteger(bedroomsValue) || bedroomsValue < 0)) {
       setError('Informe uma quantidade válida de quartos.');
+      return;
+    }
+    if (publicNow && !window.confirm('Este imóvel está visível no catálogo. Salvar agora pode alterar o anúncio dos clientes. Confirma a gravação?')) {
       return;
     }
     setSaving(true);
@@ -134,8 +144,10 @@ export default function EditarImovelPage() {
         return;
       }
 
-      // Nunca altera status, validação ou visibilidade; protege a versão pública.
-      // Também exige que o registro não tenha mudado desde que foi carregado.
+      // Não altera status, validação nem visibilidade. Para anúncios públicos, 
+      // alterações de descrição, preço e disponibilidade podem ficar visíveis 
+      // imediatamente. Triggers do banco protegem alterações críticas de preço.
+      // Exige que o registro não tenha mudado desde que foi carregado.
       const { data, error: writeError } = await adminSupabase.from('properties')
         .update({
           type: form.type,
@@ -152,9 +164,9 @@ export default function EditarImovelPage() {
           description: form.description.trim() || null,
         })
         .eq('id', draft.id)
-        .eq('status', 'inactive')
-        .eq('hidden', true)
-        .eq('validation_status', 'incomplete')
+        .eq('status', draft.status)
+        .eq('hidden', draft.hidden)
+        .eq('validation_status', draft.validation_status)
         .eq('updated_at', draft.updated_at)
         .select('id,title,type,postcode,address,unit_label,region,price,price_frequency,bedrooms,occupancy,available_from,description,status,hidden,validation_status,pending_price,updated_at')
         .maybeSingle();
@@ -164,15 +176,18 @@ export default function EditarImovelPage() {
         return;
       }
       if (!data) {
-        setError('O imóvel foi alterado por outra sessão ou não é mais um rascunho oculto. Volte à lista e abra-o novamente.');
+        setError('O imóvel foi alterado por outra sessão ou suas condições de publicação mudaram. Volte à lista e abra-o novamente.');
         return;
       }
       const saved = data as Draft;
       setDraft(saved);
       setForm(asForm(saved));
+      setConfirmedPublicChange(false);
       setSuccess(saved.pending_price !== null
-        ? 'Alterações salvas. O preço informado gerou uma revisão pendente; o preço anterior permanece registrado. O imóvel continua oculto.'
-        : 'Rascunho atualizado com sucesso. Continua inativo e oculto no catálogo.');
+        ? 'Alterações salvas. Existe um preço pendente de revisão; confira o valor antes de novas mudanças. A situação de publicação não foi alterada.'
+        : publicNow
+          ? 'Alterações gravadas. Os novos dados podem aparecer no catálogo público. O status e a visibilidade não foram modificados.'
+          : 'Alterações salvas. O status e a visibilidade do imóvel não foram modificados.');
     } catch {
       setError('Falha de conexão. Confira sua internet e tente novamente.');
     } finally {
@@ -180,19 +195,24 @@ export default function EditarImovelPage() {
     }
   }
 
+  const isPublic = Boolean(draft && draft.status === 'available' &&
+    draft.hidden === false && draft.validation_status === 'ok');
+
   if (loading) return <section className="mx-auto max-w-3xl px-4 py-12">Verificando acesso e carregando imóvel...</section>;
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
       <Link href="/admin/imoveis" className="text-sm underline">Voltar à lista de imóveis</Link>
-      <h1 className="mt-5 font-display text-3xl text-ink">Editar rascunho</h1>
+      <h1 className="mt-5 font-display text-3xl text-ink">{isPublic ? 'Editar imóvel publicado' : 'Editar imóvel'}</h1>
       {error && <p role="alert" className="mt-5 rounded-lg bg-red-50 p-4 text-sm text-red-800">{error}</p>}
       {draft && (
         <>
           <p className="mt-2 font-mono text-xs text-slate-soft">Referência: {draft.id}</p>
           <p className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
-            Somente rascunhos ocultos podem ser editados nesta etapa. Nenhuma alteração
-            desta página publica o imóvel, muda seu status ou o torna disponível no catálogo.
+            {isPublic
+              ? 'Atenção: este imóvel está publicado. Ao salvar, alterações de preço, localização, descrição e disponibilidade podem aparecer imediatamente para clientes. Confira os dados com o responsável antes de salvar.'
+              : 'Este imóvel não está publicado nesta situação. Esta tela não altera status, validação nem visibilidade.'}
+            {' '}Situação atual: {draft.status}; oculto: {draft.hidden ? 'sim' : 'não'}.
           </p>
           {draft.pending_price !== null && (
             <p className="mt-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-900">
@@ -280,9 +300,18 @@ export default function EditarImovelPage() {
                 value={form.description}
                 onChange={(e) => update('description', e.target.value)} />
             </div>
-            <button type="submit" disabled={saving}
+            {isPublic && (
+              <label className="flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                <input type="checkbox" checked={confirmedPublicChange}
+                  onChange={(e) => setConfirmedPublicChange(e.target.checked)}
+                  className="mt-1" />
+                Confirmo que conferi os dados com a fonte comercial e entendo que
+                salvar pode atualizar o anúncio visível aos clientes.
+              </label>
+            )}
+            <button type="submit" disabled={saving || (isPublic && !confirmedPublicChange)}
               className="w-full rounded-lg bg-ink px-5 py-3 font-semibold text-white disabled:opacity-60">
-              {saving ? 'Salvando...' : 'Salvar alterações do rascunho'}
+              {saving ? 'Salvando...' : isPublic ? 'Salvar alterações do imóvel publicado' : 'Salvar alterações do imóvel'}
             </button>
           </form>
         </>
