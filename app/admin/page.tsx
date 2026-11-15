@@ -71,15 +71,20 @@ export default function AdminHomePage() {
       </div>
 
       <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6">
-        <h2 className="text-xl font-semibold text-ink">Acesso configurado</h2>
+        <h2 className="text-xl font-semibold text-ink">Gerenciar imóveis</h2>
         <p className="mt-2 text-slate-soft">
-          Esta é a primeira etapa do painel: login e verificação de usuário ativo.
-          O cadastro e a edição de imóveis serão adicionados depois dos testes
-          de autenticação e permissões. Nenhum imóvel é alterado por esta tela.
+          Consulte os imóveis, preços e disponibilidade conforme as permissões
+          do seu usuário. Esta primeira versão é somente leitura.
         </p>
-        <Link href="/imoveis" className="mt-5 inline-block text-sm font-semibold underline">
-          Ver catálogo público
+        <Link href="/admin/imoveis"
+          className="mt-5 inline-block rounded-lg bg-ink px-5 py-3 font-semibold text-white">
+          Ver imóveis cadastrados
         </Link>
+        <div className="mt-5">
+          <Link href="/imoveis" className="text-sm underline">
+            Ver catálogo público
+          </Link>
+        </div>
       </div>
     </section>
   );
