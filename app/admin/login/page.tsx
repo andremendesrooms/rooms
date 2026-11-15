@@ -102,9 +102,14 @@ export default function AdminLoginPage() {
           </button>
         </form>
       )}
-      <Link href="/" className="mt-6 text-sm text-slate-soft underline">
-        Voltar ao catálogo público
+      <Link href="/admin/recuperar-senha" className="mt-6 inline-block text-sm font-semibold underline">
+        Esqueci minha senha
       </Link>
+      <div>
+        <Link href="/" className="mt-4 inline-block text-sm text-slate-soft underline">
+          Voltar ao catálogo público
+        </Link>
+      </div>
     </section>
   );
 }
