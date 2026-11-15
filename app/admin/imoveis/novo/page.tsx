@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { adminSupabase } from '@/lib/supabase-admin';
+import PropertyPhotosEditor from '@/components/admin/PropertyPhotosEditor';
 
 const PROPERTY_TYPES = [
   'Single Room',
@@ -263,6 +264,7 @@ export default function NovoImovelPage() {
           {saving ? 'Salvando...' : 'Salvar rascunho oculto'}
         </button>
       </form>
+      {createdId && <PropertyPhotosEditor propertyId={createdId} />}
     </section>
   );
 }
