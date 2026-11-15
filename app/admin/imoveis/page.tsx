@@ -35,6 +35,7 @@ export default function AdminImoveisPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [truncated, setTruncated] = useState(false);
+  const [canCreate, setCanCreate] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -57,6 +58,7 @@ export default function AdminImoveisPage() {
           router.replace('/admin/login');
           return;
         }
+        if (active) setCanCreate(['super_admin', 'manager'].includes(member.role));
 
         // Esta tela é SOMENTE leitura. O Supabase/RLS determina as propriedades
         // autorizadas para cada função. Nunca usar service_role no navegador.
@@ -101,9 +103,17 @@ export default function AdminImoveisPage() {
             Primeira versão de consulta interna. Nenhum imóvel será alterado nesta tela.
           </p>
         </div>
-        <span className="rounded-full bg-white px-4 py-2 text-sm text-ink">
-          {loading ? 'Carregando...' : `${visible.length} imóveis exibidos`}
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-full bg-white px-4 py-2 text-sm text-ink">
+            {loading ? 'Carregando...' : `${visible.length} imóveis exibidos`}
+          </span>
+          {canCreate && (
+            <Link href="/admin/imoveis/novo"
+              className="rounded-lg bg-ink px-4 py-3 text-sm font-semibold text-white">
+              Cadastrar imóvel
+            </Link>
+          )}
+        </div>
       </div>
 
       {!loading && !error && (
