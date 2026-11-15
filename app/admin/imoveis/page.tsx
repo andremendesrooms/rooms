@@ -101,7 +101,7 @@ export default function AdminImoveisPage() {
         <div>
           <h1 className="font-display text-3xl text-ink">Imóveis cadastrados</h1>
           <p className="mt-2 text-sm text-slate-soft">
-            Consulta de imóveis e edição dos rascunhos ocultos. A publicação permanece desabilitada.
+            Consulta e edição dos imóveis cadastrados. Alterar dados não muda automaticamente o status de publicação.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -171,11 +171,11 @@ export default function AdminImoveisPage() {
                     </span>
                   )}
                 </div>
-                {canCreate && property.status === 'inactive' &&
-                  property.hidden === true && property.validation_status === 'incomplete' && (
+                {canCreate && (
                     <Link href={`/admin/imoveis/${encodeURIComponent(property.id)}`}
                       className="mt-4 inline-block rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-ink">
-                      Editar rascunho
+                      {property.status === 'inactive' && property.hidden === true &&
+                       property.validation_status === 'incomplete' ? 'Editar rascunho' : 'Editar imóvel'}
                     </Link>
                   )}
               </article>
