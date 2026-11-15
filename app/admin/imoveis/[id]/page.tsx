@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { adminSupabase } from '@/lib/supabase-admin';
+import PropertyPhotosEditor from '@/components/admin/PropertyPhotosEditor';
 
 type Draft = {
   id: string; title: string | null; type: string; postcode: string | null;
@@ -314,6 +315,7 @@ export default function EditarImovelPage() {
               {saving ? 'Salvando...' : isPublic ? 'Salvar alterações do imóvel publicado' : 'Salvar alterações do imóvel'}
             </button>
           </form>
+          <PropertyPhotosEditor propertyId={draft.id} />
         </>
       )}
     </section>
