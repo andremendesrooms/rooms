@@ -12,7 +12,7 @@ type Photo = {
 };
 
 const BUCKET = 'property-images';
-const MAX_FILES = 8;
+const MAX_FILES = 30;
 const MAX_BYTES = 8 * 1024 * 1024;
 const EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',
@@ -37,9 +37,12 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true });
     if (listError) {
-      setError('Não foi possível consultar as fotografias deste imóvel.');
+      console.error('[admin/photos] Falha ao consultar fotografias:', listError.code, listError.message);
+      setError('Não foi possível consultar as fotografias. Código: ' +
+        (listError.code || 'desconhecido') + '. Detalhe: ' + listError.message);
       return;
     }
+    setError('');
     setPhotos((data ?? []).filter(
       (item): item is Photo => isTrustedPropertyPhotoUrl(item.url)
     ));
@@ -214,7 +217,7 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
               disabled={busy} onChange={chooseFiles}
               className="mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm" />
             <p className="mt-2 text-xs text-slate-soft">
-              Até 8 arquivos por vez; JPG, PNG ou WEBP; máximo de 8 MB por foto.
+              Até 30 arquivos por vez; JPG, PNG ou WEBP; máximo de 8 MB por foto.
               Fotos entram diretamente no catálogo se este imóvel já estiver publicado.
             </p>
           </div>
