@@ -34,9 +34,10 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
   // A escolha de pasta exige autorização explícita no navegador.
   // O site não pode acessar sozinho as pastas do computador.
   useEffect(() => {
+    if (loading) return;
     folderInputRef.current?.setAttribute('webkitdirectory', '');
     folderInputRef.current?.setAttribute('directory', '');
-  }, []);
+  }, [loading]);
 
   const reload = useCallback(async () => {
     const { data, error: listError } = await adminSupabase
