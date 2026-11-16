@@ -413,13 +413,14 @@ test("property cards render translated controls but preserve original database c
     );
   }
 });
-test("Netlify skips review-branch deploys without changing other branches", () => {
+test("Netlify blocks all non-main deployments while allowing main", () => {
   const { spawnSync } = require("node:child_process");
   const script = new URL("../scripts/netlify-ignore.cjs", import.meta.url)
     .pathname;
   for (const [branch, status] of [
     ["codex/issue-1-lancamento", 0],
-    ["painel-admin", 1],
+    ["painel-admin", 0],
+    ["feature/new-layout", 0],
     ["main", 1],
   ])
     assert.equal(
