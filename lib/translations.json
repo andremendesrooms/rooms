@@ -1054,5 +1054,93 @@
     "it": "Vedi il percorso con i mezzi su Google Maps",
     "fr": "Voir le trajet en transports sur Google Maps",
     "pl": "Zobacz dojazd transportem publicznym w Google Maps"
+  },
+  "Encontramos imóveis na região solicitada:": {
+    "pt": "Encontramos imóveis na região solicitada:",
+    "en": "Homes found in your requested area:",
+    "es": "Encontramos viviendas en la zona solicitada:",
+    "it": "Abbiamo trovato immobili nella zona richiesta:",
+    "fr": "Nous avons trouvé des logements dans le quartier demandé :",
+    "pl": "Znaleźliśmy oferty w wybranej okolicy:"
+  },
+  "Não encontramos imóveis no local solicitado:": {
+    "pt": "Não encontramos imóveis no local solicitado:",
+    "en": "No homes currently available in:",
+    "es": "No encontramos viviendas disponibles en:",
+    "it": "Non abbiamo trovato immobili disponibili a:",
+    "fr": "Aucun logement actuellement disponible à :",
+    "pl": "Brak dostępnych ofert w lokalizacji:"
+  },
+  "Não encontramos imóveis próximos de": {
+    "pt": "Não encontramos imóveis próximos de",
+    "en": "No homes nearby",
+    "es": "No encontramos viviendas cerca de",
+    "it": "Non abbiamo trovato immobili vicino a",
+    "fr": "Aucun logement à proximité de",
+    "pl": "Brak ofert w pobliżu"
+  },
+  "Encontramos correspondências para": {
+    "pt": "Encontramos correspondências para",
+    "en": "Listings matching",
+    "es": "Encontramos coincidencias para",
+    "it": "Abbiamo trovato corrispondenze per",
+    "fr": "Annonces correspondant à",
+    "pl": "Znaleziono pasujące oferty dla"
+  },
+  "Nenhum imóvel encontrado para": {
+    "pt": "Nenhum imóvel encontrado para",
+    "en": "No homes found for",
+    "es": "Ninguna vivienda encontrada para",
+    "it": "Nessun immobile trovato per",
+    "fr": "Aucun logement trouvé pour",
+    "pl": "Nie znaleziono ofert dla"
+  },
+  "Estas são as opções reais disponíveis nos arredores, até": {
+    "pt": "Estas são as opções reais disponíveis nos arredores, até",
+    "en": "Here are available options nearby, within",
+    "es": "Estas son las opciones disponibles en los alrededores, a menos de",
+    "it": "Ecco gli immobili disponibili nei dintorni, entro",
+    "fr": "Voici les logements disponibles à proximité, à moins de",
+    "pl": "Oto dostępne oferty w okolicy, w promieniu"
+  },
+  "km em linha reta. Veja o trajeto de transporte público no Google Maps.": {
+    "pt": "km em linha reta. Veja o trajeto de transporte público no Google Maps.",
+    "en": "km as the crow flies. Check the public transport route on Google Maps.",
+    "es": "km en línea recta. Consulta el trayecto en transporte público en Google Maps.",
+    "it": "km in linea d'aria. Controlla il percorso con i mezzi su Google Maps.",
+    "fr": "km à vol d'oiseau. Consultez le trajet en transports sur Google Maps.",
+    "pl": "km w linii prostej. Sprawdź dojazd transportem publicznym w Google Maps."
+  },
+  "Estas opções correspondem ao local que você procurou.": {
+    "pt": "Estas opções correspondem ao local que você procurou.",
+    "en": "These homes match the location you searched for.",
+    "es": "Estas opciones coinciden con el lugar que buscaste.",
+    "it": "Questi immobili corrispondono alla zona che cerchi.",
+    "fr": "Ces logements correspondent au lieu recherché.",
+    "pl": "Te oferty odpowiadają poszukiwanej lokalizacji."
+  },
+  "Não temos opções nos arredores imediatos. Veja os imóveis mais próximos do catálogo, mesmo que sejam mais distantes.": {
+    "pt": "Não temos opções nos arredores imediatos. Veja os imóveis mais próximos do catálogo, mesmo que sejam mais distantes.",
+    "en": "Nothing in the immediate area. Here are the nearest available listings, even though they are farther away.",
+    "es": "No hay opciones en los alrededores inmediatos. Aquí están las más cercanas, aunque estén más lejos.",
+    "it": "Nessuna opzione nelle immediate vicinanze. Ecco le più vicine disponibili, anche se più distanti.",
+    "fr": "Aucun logement dans les environs immédiats. Voici les offres les plus proches, même si elles sont plus éloignées.",
+    "pl": "Brak ofert w najbliższej okolicy. Oto najbliższe dostępne oferty, choć mogą być dalej."
+  },
+  "Não foi possível calcular distâncias com os dados disponíveis. Estas são correspondências pelo nome, sem distância confirmada.": {
+    "pt": "Não foi possível calcular distâncias com os dados disponíveis. Estas são correspondências pelo nome, sem distância confirmada.",
+    "en": "Distances could not be calculated with the available data. These are name matches, without verified distances.",
+    "es": "No se pudieron calcular las distancias con los datos disponibles. Estas son coincidencias por nombre, sin distancias verificadas.",
+    "it": "Impossibile calcolare le distanze con i dati disponibili. Questi risultati corrispondono al nome, senza distanze verificate.",
+    "fr": "Impossible de calculer les distances avec les données disponibles. Ces résultats correspondent au nom, sans distance vérifiée.",
+    "pl": "Nie można obliczyć odległości z dostępnych danych. Oto dopasowania nazw bez potwierdzonych odległości."
+  },
+  "Não encontramos opções que atendam aos filtros ou não foi possível localizar a região. Tente informar uma estação ou postcode completo.": {
+    "pt": "Não encontramos opções que atendam aos filtros ou não foi possível localizar a região. Tente informar uma estação ou postcode completo.",
+    "en": "No available listings match your filters, or the location could not be found. Try a station or full postcode.",
+    "es": "No hay anuncios que cumplan tus filtros o no se pudo localizar la zona. Prueba con una estación o código postal completo.",
+    "it": "Nessuna offerta soddisfa i filtri o non è stato possibile trovare la zona. Prova una stazione o un codice postale completo.",
+    "fr": "Aucune offre ne correspond aux filtres ou le lieu n'a pas été trouvé. Essayez une station ou un code postal complet.",
+    "pl": "Brak ofert pasujących do filtrów lub nie znaleziono lokalizacji. Spróbuj podać stację lub pełny kod pocztowy."
   }
 }
