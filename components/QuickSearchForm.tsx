@@ -19,6 +19,22 @@ export default async function QuickSearchForm({
       method="get"
       className="grid grid-cols-2 gap-3 rounded-2xl bg-white p-4 shadow-lg sm:grid-cols-3 lg:grid-cols-5"
     >
+      <label htmlFor="quick-near" className="col-span-2 block text-xs font-semibold text-ink sm:col-span-3 lg:col-span-5">
+        {t("Perto de qual estação, região ou postcode?")}
+        <input
+          id="quick-near"
+          type="search"
+          name="near"
+          maxLength={80}
+          placeholder={t("Ex.: London Bridge, Brixton ou SW16")}
+          autoComplete="off"
+          className="field mt-2 w-full"
+        />
+        <span className="mt-1 block text-xs font-normal text-slate-soft">
+          {t("Veja imóveis próximos e consulte o transporte público pelo Google Maps.")}
+        </span>
+      </label>
+
       <select
         aria-label={t("Tipo de imóvel")}
         name="type"
