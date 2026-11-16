@@ -31,7 +31,11 @@ export default function PublicationControls({
       !window.confirm(
         action === "publish"
           ? "Publicar este anúncio real no catálogo agora?"
-          : "Confirmar a retirada deste anúncio do catálogo?",
+          : action === "archive"
+            ? "Excluir da lista operacional? O imóvel será arquivado e poderá ser restaurado com todos os dados e fotos."
+            : action === "restore"
+              ? "Restaurar como RASCUNHO OCULTO, sem publicar?"
+              : "Confirmar a retirada deste anúncio do catálogo?",
       )
     )
       return;
@@ -85,10 +89,10 @@ export default function PublicationControls({
     <section className="mt-8 rounded-2xl border border-black/10 bg-white p-6">
       <h2 className="text-xl font-semibold">Publicação e disponibilidade</h2>
       <p className="mt-2 text-sm text-slate-soft">
-        Salve as alterações do formulário antes de alterar a publicação. Nenhuma
-        ação exclui o imóvel ou suas fotos.
+        Salve as alterações do formulário antes de alterar a publicação. “Excluir”
+        arquiva o imóvel e preserva todas as informações e fotografias para recuperação.
       </p>
-      <label className="mt-4 flex items-start gap-3 text-sm">
+      {record.status !== "archived" && <label className="mt-4 flex items-start gap-3 text-sm">
         <input
           type="checkbox"
           checked={verified}
@@ -96,37 +100,38 @@ export default function PublicationControls({
         />
         Conferi com a fonte comercial: anúncio real, disponibilidade, fotos e
         valores corretos. Não é imóvel fictício de teste.
-      </label>
+      </label>}
       <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          type="button"
-          disabled={
-            busy ||
-            !verified ||
-            record.validation_status !== "ok" ||
-            record.pending_price !== null
-          }
-          onClick={() => change("publish")}
-          className="rounded-lg bg-route-green px-4 py-3 text-white disabled:opacity-50"
-        >
-          Publicar / mostrar
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => change("hide")}
-          className="rounded-lg border px-4 py-3"
-        >
-          Ocultar
-        </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => change("rent")}
-          className="rounded-lg border px-4 py-3"
-        >
-          Marcar como alugado
-        </button>
+        {record.status === "archived" ? (
+          <button type="button" disabled={busy} onClick={() => change("restore")}
+            className="rounded-lg border border-route-green px-4 py-3 text-route-green disabled:opacity-50">
+            Restaurar como rascunho oculto
+          </button>
+        ) : (
+          <>
+            <button type="button"
+              disabled={busy || !verified || record.validation_status !== "ok" ||
+                record.pending_price !== null}
+              onClick={() => change("publish")}
+              className="rounded-lg bg-route-green px-4 py-3 text-white disabled:opacity-50">
+              Publicar / mostrar
+            </button>
+            <button type="button" disabled={busy || record.hidden}
+              onClick={() => change("hide")}
+              className="rounded-lg border px-4 py-3 disabled:opacity-50">
+              Ocultar
+            </button>
+            <button type="button" disabled={busy || record.status === "rented"}
+              onClick={() => change("rent")}
+              className="rounded-lg border px-4 py-3 disabled:opacity-50">
+              Marcar como alugado
+            </button>
+            <button type="button" disabled={busy} onClick={() => change("archive")}
+              className="rounded-lg border border-red-200 px-4 py-3 text-red-700 disabled:opacity-50">
+              Excluir (arquivar)
+            </button>
+          </>
+        )}
       </div>
       {error && (
         <p role="alert" className="mt-4 text-sm text-red-800">
