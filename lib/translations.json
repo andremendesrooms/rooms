@@ -958,5 +958,101 @@
     "it": "Ciao! Sto cercando un immobile.",
     "fr": "Bonjour ! Je recherche un logement.",
     "pl": "Dzień dobry! Szukam nieruchomości."
+  },
+  "Perto de qual estação, região ou postcode?": {
+    "pt": "Perto de qual estação, região ou postcode?",
+    "en": "Near which station, area or postcode?",
+    "es": "¿Cerca de qué estación, zona o código postal?",
+    "it": "Vicino a quale stazione, zona o codice postale?",
+    "fr": "Près de quelle gare, quel quartier ou code postal ?",
+    "pl": "W pobliżu jakiej stacji, dzielnicy lub kodu pocztowego?"
+  },
+  "Ex.: London Bridge, Brixton ou SW16": {
+    "pt": "Ex.: London Bridge, Brixton ou SW16",
+    "en": "e.g. London Bridge, Brixton or SW16",
+    "es": "Ej.: London Bridge, Brixton o SW16",
+    "it": "Es.: London Bridge, Brixton o SW16",
+    "fr": "Ex. : London Bridge, Brixton ou SW16",
+    "pl": "Np. London Bridge, Brixton lub SW16"
+  },
+  "Veja imóveis próximos e consulte o transporte público pelo Google Maps.": {
+    "pt": "Veja imóveis próximos e consulte o transporte público pelo Google Maps.",
+    "en": "Find nearby homes and check public transport on Google Maps.",
+    "es": "Encuentra viviendas cercanas y consulta el transporte público en Google Maps.",
+    "it": "Trova case vicine e controlla i trasporti pubblici su Google Maps.",
+    "fr": "Trouvez des logements à proximité et consultez les transports sur Google Maps.",
+    "pl": "Znajdź pobliskie nieruchomości i sprawdź transport publiczny w Google Maps."
+  },
+  "Proximidade geográfica; compare o tempo de transporte público no Google Maps.": {
+    "pt": "Proximidade geográfica; compare o tempo de transporte público no Google Maps.",
+    "en": "Geographic proximity; compare public transport journey times on Google Maps.",
+    "es": "Proximidad geográfica; compara el tiempo de transporte público en Google Maps.",
+    "it": "Vicinanza geografica; confronta i tempi di viaggio su Google Maps.",
+    "fr": "Proximité géographique ; comparez les temps de trajet sur Google Maps.",
+    "pl": "Odległość geograficzna; porównaj czas dojazdu w Google Maps."
+  },
+  "Imóveis próximos de": {
+    "pt": "Imóveis próximos de",
+    "en": "Homes near",
+    "es": "Viviendas cerca de",
+    "it": "Immobili vicini a",
+    "fr": "Logements près de",
+    "pl": "Nieruchomości w pobliżu"
+  },
+  "Ordenados por proximidade geográfica aproximada, não pelo tempo de viagem. Abra o Google Maps para comparar metrô, trem e ônibus.": {
+    "pt": "Ordenados por proximidade geográfica aproximada, não pelo tempo de viagem. Abra o Google Maps para comparar metrô, trem e ônibus.",
+    "en": "Sorted by approximate straight-line proximity, not journey time. Open Google Maps to compare Tube, train and bus routes.",
+    "es": "Ordenados por cercanía geográfica aproximada, no por tiempo de viaje. Abre Google Maps para comparar metro, tren y autobús.",
+    "it": "Ordinati per distanza geografica approssimativa, non per tempo di viaggio. Apri Google Maps per confrontare metro, treno e autobus.",
+    "fr": "Classés par proximité géographique approximative, et non par temps de trajet. Ouvrez Google Maps pour comparer métro, train et bus.",
+    "pl": "Posortowane według przybliżonej odległości w linii prostej, a nie czasu podróży. Otwórz Google Maps, aby porównać metro, pociągi i autobusy."
+  },
+  "Não foi possível calcular a distância deste local. Veja as correspondências de nome e abra o Google Maps para conferir a ligação de transporte.": {
+    "pt": "Não foi possível calcular a distância deste local. Veja as correspondências de nome e abra o Google Maps para conferir a ligação de transporte.",
+    "en": "We could not calculate distance from this location. Browse name matches and open Google Maps to check transport connections.",
+    "es": "No pudimos calcular la distancia desde este lugar. Consulta coincidencias de nombre y abre Google Maps para ver las conexiones de transporte.",
+    "it": "Non è stato possibile calcolare la distanza da questa località. Consulta i risultati per nome e apri Google Maps per verificare i trasporti.",
+    "fr": "Impossible de calculer la distance depuis ce lieu. Consultez les correspondances par nom et ouvrez Google Maps pour vérifier les transports.",
+    "pl": "Nie udało się obliczyć odległości od tego miejsca. Zobacz dopasowania nazw i sprawdź połączenia w Google Maps."
+  },
+  "A busca considera apenas anúncios disponíveis que atendem aos demais filtros.": {
+    "pt": "A busca considera apenas anúncios disponíveis que atendem aos demais filtros.",
+    "en": "Search results include only available listings matching your other filters.",
+    "es": "La búsqueda solo incluye anuncios disponibles que cumplen los demás filtros.",
+    "it": "La ricerca include solo annunci disponibili compatibili con gli altri filtri.",
+    "fr": "La recherche ne comprend que les annonces disponibles correspondant aux autres filtres.",
+    "pl": "Wyniki obejmują tylko dostępne oferty spełniające pozostałe kryteria."
+  },
+  "Nenhum imóvel corresponde a esses critérios. Experimente aumentar o orçamento ou ampliar a área.": {
+    "pt": "Nenhum imóvel corresponde a esses critérios. Experimente aumentar o orçamento ou ampliar a área.",
+    "en": "No properties match these criteria. Try raising your budget or widening the area.",
+    "es": "No hay inmuebles que coincidan. Prueba a aumentar el presupuesto o ampliar la zona.",
+    "it": "Nessun immobile corrisponde ai criteri. Prova ad aumentare il budget o ampliare la zona.",
+    "fr": "Aucun logement ne correspond aux critères. Essayez d'augmenter votre budget ou d'élargir la zone.",
+    "pl": "Żadna oferta nie spełnia kryteriów. Spróbuj zwiększyć budżet lub poszerzyć obszar."
+  },
+  "Distância indisponível para este imóvel": {
+    "pt": "Distância indisponível para este imóvel",
+    "en": "Distance unavailable for this property",
+    "es": "Distancia no disponible para este inmueble",
+    "it": "Distanza non disponibile per questo immobile",
+    "fr": "Distance indisponible pour ce logement",
+    "pl": "Odległość dla tej oferty jest niedostępna"
+  },
+  "em linha reta (aproximadamente)": {
+    "pt": "em linha reta (aproximadamente)",
+    "en": "as the crow flies (approximately)",
+    "es": "en línea recta (aproximadamente)",
+    "it": "in linea d'aria (circa)",
+    "fr": "à vol d'oiseau (environ)",
+    "pl": "w linii prostej (w przybliżeniu)"
+  },
+  "Ver trajeto no Google Maps": {
+    "pt": "Ver trajeto no Google Maps",
+    "en": "See public transport route on Google Maps",
+    "es": "Ver ruta en transporte público en Google Maps",
+    "it": "Vedi il percorso con i mezzi su Google Maps",
+    "fr": "Voir le trajet en transports sur Google Maps",
+    "pl": "Zobacz dojazd transportem publicznym w Google Maps"
   }
 }
