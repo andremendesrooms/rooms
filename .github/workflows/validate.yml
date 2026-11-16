@@ -1,7 +1,7 @@
 name: Validate
 on:
   pull_request:
-    branches: [painel-admin]
+    branches: [painel-admin, main]
   push:
     branches: ["painel-admin", "codex/**"]
 permissions:
