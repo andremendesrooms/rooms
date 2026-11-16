@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { adminSupabase } from '@/lib/supabase-admin';
 import { publicationChange, type PublicationAction, type PublicationRecord } from '@/lib/publication';
+import PermanentDeleteButton from '@/components/admin/PermanentDeleteButton';
 
 export type EditableProperty = PublicationRecord & {
   id: string;
@@ -20,9 +21,11 @@ const descriptions: Record<PublicationAction, string> = {
 export default function PropertyQuickActions({
   property,
   onChanged,
+  canDeletePermanently = false,
 }: {
   property: EditableProperty;
   onChanged: (message: string) => void;
+  canDeletePermanently?: boolean;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -129,6 +132,9 @@ export default function PropertyQuickActions({
               Excluir
             </button>
           </>
+        )}
+        {archived && canDeletePermanently && (
+          <PermanentDeleteButton property={property} onDeleted={onChanged} />
         )}
         {busy && <span role="status" className="self-center text-xs text-slate-soft">Atualizando...</span>}
       </div>
