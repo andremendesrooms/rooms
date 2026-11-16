@@ -1,16 +1,18 @@
-/** Only public Supabase Storage URLs configured in next.config.mjs are supported.
- * Never pass test placeholders or unknown remote hosts into next/image.
- */
+/** Only the configured project's public property-images bucket is allowed. */
 export function isTrustedPropertyPhotoUrl(value: unknown): value is string {
-  if (typeof value !== 'string' || !value.trim()) return false;
+  if (typeof value !== "string" || !process.env.NEXT_PUBLIC_SUPABASE_URL)
+    return false;
   try {
     const url = new URL(value);
+    const project = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL);
     return (
-      url.protocol === 'https:' &&
-      (url.hostname === 'supabase.co' || url.hostname.endsWith('.supabase.co')) &&
-      url.pathname.startsWith('/storage/v1/object/public/') &&
-      url.username === '' &&
-      url.password === ''
+      url.protocol === "https:" &&
+      url.origin === project.origin &&
+      url.pathname.startsWith(
+        "/storage/v1/object/public/property-images/properties/",
+      ) &&
+      !url.username &&
+      !url.password
     );
   } catch {
     return false;

@@ -1,17 +1,19 @@
-import PropertyCard from './PropertyCard';
-import type { PropertyWithPhotos } from '@/lib/types';
+import { getTranslator } from "@/lib/i18n-server";
+import PropertyCard from "./PropertyCard";
+import type { PropertyWithPhotos } from "@/lib/types";
 
-export default function PropertyGrid({
+export default async function PropertyGrid({
   properties,
-  emptyMessage = 'Nenhum imóvel encontrado com esses filtros no momento.',
+  emptyMessage = "Nenhum imóvel encontrado com esses filtros no momento.",
 }: {
   properties: PropertyWithPhotos[];
   emptyMessage?: string;
 }) {
+  const t = await getTranslator();
   if (properties.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-black/10 p-8 text-center text-slate-soft">
-        {emptyMessage}
+        {t(emptyMessage)}
       </div>
     );
   }

@@ -1,0 +1,786 @@
+{
+  "Ver imóveis": {
+    "pt": "Ver imóveis",
+    "en": "Browse homes",
+    "es": "Ver inmuebles",
+    "it": "Vedi immobili",
+    "fr": "Voir les logements"
+  },
+  "Como funciona": {
+    "pt": "Como funciona",
+    "en": "How it works",
+    "es": "Cómo funciona",
+    "it": "Come funziona",
+    "fr": "Comment ça marche"
+  },
+  "Londres • Seu próximo endereço": {
+    "pt": "Londres • Seu próximo endereço",
+    "en": "London • Your next address",
+    "es": "Londres • Tu próxima dirección",
+    "it": "Londra • Il tuo prossimo indirizzo",
+    "fr": "Londres • Votre prochaine adresse"
+  },
+  "Seu próximo imóvel em Londres": {
+    "pt": "Seu próximo imóvel em Londres",
+    "en": "Your next home in London",
+    "es": "Tu próximo hogar en Londres",
+    "it": "La tua prossima casa a Londra",
+    "fr": "Votre prochain logement à Londres"
+  },
+  "está aqui.": {
+    "pt": "está aqui.",
+    "en": "is here.",
+    "es": "está aquí.",
+    "it": "è qui.",
+    "fr": "est ici."
+  },
+  "Já mora em Londres e quer mudar? Encontre um espaço para a sua próxima fase, com atendimento em português e condições claras.": {
+    "pt": "Já mora em Londres e quer mudar? Encontre um espaço para a sua próxima fase, com atendimento em português e condições claras.",
+    "en": "Already living in London and looking to move? Find a space for your next chapter, with support in Portuguese and clear terms.",
+    "es": "¿Ya vives en Londres y quieres mudarte? Encuentra un espacio para tu próxima etapa, con atención en portugués y condiciones claras.",
+    "it": "Vivi già a Londra e vuoi traslocare? Trova uno spazio per la tua prossima fase, con assistenza in portoghese e condizioni chiare.",
+    "fr": "Vous vivez déjà à Londres et souhaitez déménager ? Trouvez un espace pour votre prochaine étape, avec un accompagnement en portugais et des conditions claires."
+  },
+  "Encontre seu novo lugar ↗": {
+    "pt": "Encontre seu novo lugar ↗",
+    "en": "Find your next home ↗",
+    "es": "Encuentra tu nuevo hogar ↗",
+    "it": "Trova la tua nuova casa ↗",
+    "fr": "Trouvez votre prochain logement ↗"
+  },
+  "Quartos · Suítes · Studios · Flats · Casas": {
+    "pt": "Quartos · Suítes · Studios · Flats · Casas",
+    "en": "Rooms · En-suites · Studios · Flats · Houses",
+    "es": "Habitaciones · Suites · Estudios · Pisos · Casas",
+    "it": "Camere · Suite · Monolocali · Appartamenti · Case",
+    "fr": "Chambres · Suites · Studios · Appartements · Maisons"
+  },
+  "Uma nova fase.": {
+    "pt": "Uma nova fase.",
+    "en": "A new chapter.",
+    "es": "Una nueva etapa.",
+    "it": "Una nuova fase.",
+    "fr": "Une nouvelle étape."
+  },
+  "Um novo endereço.": {
+    "pt": "Um novo endereço.",
+    "en": "A new address.",
+    "es": "Una nueva dirección.",
+    "it": "Un nuovo indirizzo.",
+    "fr": "Une nouvelle adresse."
+  },
+  "Explore as opções disponíveis ou conte o que você procura.": {
+    "pt": "Explore as opções disponíveis ou conte o que você procura.",
+    "en": "Explore available options or tell us what you are looking for.",
+    "es": "Explora las opciones disponibles o cuéntanos qué buscas.",
+    "it": "Esplora le opzioni disponibili o raccontaci cosa cerchi.",
+    "fr": "Explorez les offres disponibles ou dites-nous ce que vous recherchez."
+  },
+  "Busque seu imóvel": {
+    "pt": "Busque seu imóvel",
+    "en": "Find a home",
+    "es": "Busca tu hogar",
+    "it": "Cerca casa",
+    "fr": "Recherchez un logement"
+  },
+  "Encontre seu lugar": {
+    "pt": "Encontre seu lugar",
+    "en": "Find your place",
+    "es": "Encuentra tu lugar",
+    "it": "Trova il tuo spazio",
+    "fr": "Trouvez votre place"
+  },
+  "Imóveis disponíveis": {
+    "pt": "Imóveis disponíveis",
+    "en": "Available homes",
+    "es": "Inmuebles disponibles",
+    "it": "Immobili disponibili",
+    "fr": "Logements disponibles"
+  },
+  "Ver catálogo ↗": {
+    "pt": "Ver catálogo ↗",
+    "en": "Browse listings ↗",
+    "es": "Ver catálogo ↗",
+    "it": "Vedi catalogo ↗",
+    "fr": "Voir le catalogue ↗"
+  },
+  "Do primeiro contato à mudança": {
+    "pt": "Do primeiro contato à mudança",
+    "en": "From first contact to moving day",
+    "es": "Del primer contacto a la mudanza",
+    "it": "Dal primo contatto al trasloco",
+    "fr": "Du premier contact au déménagement"
+  },
+  "Seu próximo passo, com clareza.": {
+    "pt": "Seu próximo passo, com clareza.",
+    "en": "Your next step, made clear.",
+    "es": "Tu próximo paso, con claridad.",
+    "it": "Il tuo prossimo passo, con chiarezza.",
+    "fr": "Votre prochaine étape, en toute clarté."
+  },
+  "Escolha seu espaço": {
+    "pt": "Escolha seu espaço",
+    "en": "Choose your space",
+    "es": "Elige tu espacio",
+    "it": "Scegli il tuo spazio",
+    "fr": "Choisissez votre espace"
+  },
+  "Filtre por região, tipo e data. Veja fotos e informações de cada anúncio.": {
+    "pt": "Filtre por região, tipo e data. Veja fotos e informações de cada anúncio.",
+    "en": "Filter by area, type and date. View photos and details for each listing.",
+    "es": "Filtra por zona, tipo y fecha. Mira las fotos y los detalles de cada anuncio.",
+    "it": "Filtra per zona, tipo e data. Guarda foto e dettagli di ogni annuncio.",
+    "fr": "Filtrez par quartier, type et date. Consultez les photos et les détails de chaque annonce."
+  },
+  "Converse com a gente": {
+    "pt": "Converse com a gente",
+    "en": "Talk to us",
+    "es": "Habla con nosotros",
+    "it": "Parla con noi",
+    "fr": "Contactez-nous"
+  },
+  "Confirme disponibilidade, valores, depósito e condições pelo WhatsApp.": {
+    "pt": "Confirme disponibilidade, valores, depósito e condições pelo WhatsApp.",
+    "en": "Confirm availability, rent, deposit and terms on WhatsApp.",
+    "es": "Confirma disponibilidad, precios, depósito y condiciones por WhatsApp.",
+    "it": "Conferma disponibilità, prezzi, deposito e condizioni su WhatsApp.",
+    "fr": "Confirmez la disponibilité, le loyer, le dépôt et les conditions sur WhatsApp."
+  },
+  "Combine os próximos passos": {
+    "pt": "Combine os próximos passos",
+    "en": "Arrange the next steps",
+    "es": "Acuerda los próximos pasos",
+    "it": "Concorda i prossimi passi",
+    "fr": "Organisez les prochaines étapes"
+  },
+  "Agende uma visita e confirme os detalhes antes de decidir.": {
+    "pt": "Agende uma visita e confirme os detalhes antes de decidir.",
+    "en": "Arrange a viewing and confirm the details before deciding.",
+    "es": "Programa una visita y confirma los detalles antes de decidir.",
+    "it": "Prenota una visita e conferma i dettagli prima di decidere.",
+    "fr": "Organisez une visite et confirmez les détails avant de décider."
+  },
+  "Mais clareza para escolher melhor.": {
+    "pt": "Mais clareza para escolher melhor.",
+    "en": "Clearer information. Better decisions.",
+    "es": "Más claridad para elegir mejor.",
+    "it": "Più chiarezza per scegliere meglio.",
+    "fr": "Plus de clarté pour mieux choisir."
+  },
+  "Fotos dos anúncios": {
+    "pt": "Fotos dos anúncios",
+    "en": "Listing photos",
+    "es": "Fotos de los anuncios",
+    "it": "Foto degli annunci",
+    "fr": "Photos des annonces"
+  },
+  "Explore as fotografias de cada imóvel e confirme os detalhes na visita.": {
+    "pt": "Explore as fotografias de cada imóvel e confirme os detalhes na visita.",
+    "en": "Explore each property's photos and confirm details during the viewing.",
+    "es": "Mira las fotos de cada inmueble y confirma los detalles en la visita.",
+    "it": "Guarda le foto di ogni immobile e conferma i dettagli durante la visita.",
+    "fr": "Consultez les photos de chaque logement et confirmez les détails lors de la visite."
+  },
+  "Atendimento em português": {
+    "pt": "Atendimento em português",
+    "en": "Support in Portuguese",
+    "es": "Atención en portugués",
+    "it": "Assistenza in portoghese",
+    "fr": "Accompagnement en portugais"
+  },
+  "Conte sua rotina, sua região preferida e o que precisa no novo espaço.": {
+    "pt": "Conte sua rotina, sua região preferida e o que precisa no novo espaço.",
+    "en": "Tell us about your routine, preferred area and what you need in your next home.",
+    "es": "Cuéntanos tu rutina, tu zona preferida y qué necesitas en tu nuevo hogar.",
+    "it": "Raccontaci la tua routine, la zona preferita e cosa cerchi nella nuova casa.",
+    "fr": "Parlez-nous de votre quotidien, du quartier souhaité et de vos besoins."
+  },
+  "Condições antes da decisão": {
+    "pt": "Condições antes da decisão",
+    "en": "Terms before you decide",
+    "es": "Condiciones antes de decidir",
+    "it": "Condizioni prima di decidere",
+    "fr": "Les conditions avant de décider"
+  },
+  "Valores e regras variam por imóvel. Confirme entrada, depósito e datas no atendimento.": {
+    "pt": "Valores e regras variam por imóvel. Confirme entrada, depósito e datas no atendimento.",
+    "en": "Prices and rules vary by property. Confirm upfront costs, deposit and dates with our team.",
+    "es": "Los precios y las normas varían por inmueble. Confirma los costes iniciales, el depósito y las fechas con el equipo.",
+    "it": "Prezzi e regole variano per immobile. Conferma costi iniziali, deposito e date con il team.",
+    "fr": "Les prix et les règles varient selon le logement. Confirmez les frais initiaux, le dépôt et les dates avec notre équipe."
+  },
+  "Uma busca mais pessoal": {
+    "pt": "Uma busca mais pessoal",
+    "en": "A more personal search",
+    "es": "Una búsqueda más personal",
+    "it": "Una ricerca più personale",
+    "fr": "Une recherche plus personnelle"
+  },
+  "O que você procura?": {
+    "pt": "O que você procura?",
+    "en": "What are you looking for?",
+    "es": "¿Qué buscas?",
+    "it": "Cosa cerchi?",
+    "fr": "Que recherchez-vous ?"
+  },
+  "Envie suas preferências pelo WhatsApp. Se sua mudança ainda está longe, podemos acompanhar sua procura, sem promessa de reserva antecipada.": {
+    "pt": "Envie suas preferências pelo WhatsApp. Se sua mudança ainda está longe, podemos acompanhar sua procura, sem promessa de reserva antecipada.",
+    "en": "Send your preferences on WhatsApp. If your move is further ahead, we can follow your search without promising an advance reservation.",
+    "es": "Envía tus preferencias por WhatsApp. Si tu mudanza es más adelante, podemos seguir tu búsqueda sin prometer una reserva anticipada.",
+    "it": "Invia le tue preferenze su WhatsApp. Se il trasloco è lontano, possiamo seguire la ricerca senza promettere una prenotazione anticipata.",
+    "fr": "Envoyez vos préférences sur WhatsApp. Si votre déménagement est lointain, nous pouvons suivre votre recherche sans promettre de réservation anticipée."
+  },
+  "Antes de mudar": {
+    "pt": "Antes de mudar",
+    "en": "Before you move",
+    "es": "Antes de mudarte",
+    "it": "Prima di traslocare",
+    "fr": "Avant de déménager"
+  },
+  "Já preciso morar em Londres?": {
+    "pt": "Já preciso morar em Londres?",
+    "en": "Do I need to live in London already?",
+    "es": "¿Tengo que vivir ya en Londres?",
+    "it": "Devo già vivere a Londra?",
+    "fr": "Dois-je déjà vivre à Londres ?"
+  },
+  "Nosso foco é quem já mora em Londres e quer mudar de imóvel. Se você ainda está fora do Reino Unido, fale conosco sobre sua situação.": {
+    "pt": "Nosso foco é quem já mora em Londres e quer mudar de imóvel. Se você ainda está fora do Reino Unido, fale conosco sobre sua situação.",
+    "en": "We focus on people already living in London who want to move. If you are outside the UK, tell us about your situation.",
+    "es": "Nos centramos en quienes ya viven en Londres y quieren mudarse. Si estás fuera del Reino Unido, cuéntanos tu situación.",
+    "it": "Ci rivolgiamo soprattutto a chi vive già a Londra e vuole traslocare. Se sei fuori dal Regno Unito, raccontaci la tua situazione.",
+    "fr": "Nous accompagnons surtout les personnes vivant déjà à Londres qui souhaitent déménager. Si vous êtes hors du Royaume-Uni, parlez-nous de votre situation."
+  },
+  "As contas estão incluídas?": {
+    "pt": "As contas estão incluídas?",
+    "en": "Are bills included?",
+    "es": "¿Están incluidos los gastos?",
+    "it": "Le utenze sono incluse?",
+    "fr": "Les charges sont-elles incluses ?"
+  },
+  "Depende do imóvel. Confira o anúncio e confirme contas, depósito e demais condições com a equipe.": {
+    "pt": "Depende do imóvel. Confira o anúncio e confirme contas, depósito e demais condições com a equipe.",
+    "en": "It depends on the property. Check the listing and confirm bills, deposit and other terms with our team.",
+    "es": "Depende del inmueble. Revisa el anuncio y confirma gastos, depósito y otras condiciones con el equipo.",
+    "it": "Dipende dall'immobile. Controlla l'annuncio e conferma utenze, deposito e condizioni con il team.",
+    "fr": "Cela dépend du logement. Consultez l'annonce et confirmez les charges, le dépôt et les conditions avec notre équipe."
+  },
+  "Posso reservar com dois meses de antecedência?": {
+    "pt": "Posso reservar com dois meses de antecedência?",
+    "en": "Can I reserve two months ahead?",
+    "es": "¿Puedo reservar con dos meses de antelación?",
+    "it": "Posso prenotare con due mesi di anticipo?",
+    "fr": "Puis-je réserver deux mois à l'avance ?"
+  },
+  "A disponibilidade muda. Podemos acompanhar sua procura, mas não prometemos reservas antecipadas.": {
+    "pt": "A disponibilidade muda. Podemos acompanhar sua procura, mas não prometemos reservas antecipadas.",
+    "en": "Availability changes. We can follow your search, but cannot promise advance reservations.",
+    "es": "La disponibilidad cambia. Podemos seguir tu búsqueda, pero no prometemos reservas anticipadas.",
+    "it": "La disponibilità cambia. Possiamo seguire la ricerca, ma non promettiamo prenotazioni anticipate.",
+    "fr": "La disponibilité évolue. Nous pouvons suivre votre recherche, mais ne promettons pas de réservation anticipée."
+  },
+  "Tipo": {
+    "pt": "Tipo",
+    "en": "Type",
+    "es": "Tipo",
+    "it": "Tipo",
+    "fr": "Type"
+  },
+  "Pessoas": {
+    "pt": "Pessoas",
+    "en": "People",
+    "es": "Personas",
+    "it": "Persone",
+    "fr": "Personnes"
+  },
+  "Região": {
+    "pt": "Região",
+    "en": "Area",
+    "es": "Zona",
+    "it": "Zona",
+    "fr": "Quartier"
+  },
+  "Encontrar imóveis": {
+    "pt": "Encontrar imóveis",
+    "en": "Find homes",
+    "es": "Buscar inmuebles",
+    "it": "Cerca immobili",
+    "fr": "Rechercher"
+  },
+  "Todos os tipos": {
+    "pt": "Todos os tipos",
+    "en": "All types",
+    "es": "Todos los tipos",
+    "it": "Tutti i tipi",
+    "fr": "Tous les types"
+  },
+  "Qualquer ocupação": {
+    "pt": "Qualquer ocupação",
+    "en": "Any occupancy",
+    "es": "Cualquier ocupación",
+    "it": "Qualsiasi occupazione",
+    "fr": "Toute occupation"
+  },
+  "Todas as regiões": {
+    "pt": "Todas as regiões",
+    "en": "All areas",
+    "es": "Todas las zonas",
+    "it": "Tutte le zone",
+    "fr": "Tous les quartiers"
+  },
+  "Filtrar": {
+    "pt": "Filtrar",
+    "en": "Apply filters",
+    "es": "Filtrar",
+    "it": "Filtra",
+    "fr": "Filtrer"
+  },
+  "Single": {
+    "pt": "Single",
+    "en": "Individual",
+    "es": "Individual",
+    "it": "Singola",
+    "fr": "Individuel"
+  },
+  "Casal": {
+    "pt": "Casal",
+    "en": "Couple",
+    "es": "Pareja",
+    "it": "Coppia",
+    "fr": "Couple"
+  },
+  "Família": {
+    "pt": "Família",
+    "en": "Family",
+    "es": "Familia",
+    "it": "Famiglia",
+    "fr": "Famille"
+  },
+  "Foto a confirmar": {
+    "pt": "Foto a confirmar",
+    "en": "Photo to be confirmed",
+    "es": "Foto por confirmar",
+    "it": "Foto da confermare",
+    "fr": "Photo à confirmer"
+  },
+  "Fotos a confirmar": {
+    "pt": "Fotos a confirmar",
+    "en": "Photos to be confirmed",
+    "es": "Fotos por confirmar",
+    "it": "Foto da confermare",
+    "fr": "Photos à confirmer"
+  },
+  "⭐ Destaque": {
+    "pt": "⭐ Destaque",
+    "en": "⭐ Featured",
+    "es": "⭐ Destacado",
+    "it": "⭐ In evidenza",
+    "fr": "⭐ À la une"
+  },
+  "Preço a confirmar": {
+    "pt": "Preço a confirmar",
+    "en": "Price to be confirmed",
+    "es": "Precio por confirmar",
+    "it": "Prezzo da confermare",
+    "fr": "Prix à confirmer"
+  },
+  "semana": {
+    "pt": "semana",
+    "en": "week",
+    "es": "semana",
+    "it": "settimana",
+    "fr": "semaine"
+  },
+  "mês": {
+    "pt": "mês",
+    "en": "month",
+    "es": "mes",
+    "it": "mese",
+    "fr": "mois"
+  },
+  "quarto": {
+    "pt": "quarto",
+    "en": "bedroom",
+    "es": "dormitorio",
+    "it": "camera",
+    "fr": "chambre"
+  },
+  "quartos": {
+    "pt": "quartos",
+    "en": "bedrooms",
+    "es": "dormitorios",
+    "it": "camere",
+    "fr": "chambres"
+  },
+  "banheiro": {
+    "pt": "banheiro",
+    "en": "bathroom",
+    "es": "baño",
+    "it": "bagno",
+    "fr": "salle de bain"
+  },
+  "banheiros": {
+    "pt": "banheiros",
+    "en": "bathrooms",
+    "es": "baños",
+    "it": "bagni",
+    "fr": "salles de bain"
+  },
+  "Quartos": {
+    "pt": "Quartos",
+    "en": "Bedrooms",
+    "es": "Dormitorios",
+    "it": "Camere",
+    "fr": "Chambres"
+  },
+  "Banheiros": {
+    "pt": "Banheiros",
+    "en": "Bathrooms",
+    "es": "Baños",
+    "it": "Bagni",
+    "fr": "Salles de bain"
+  },
+  "Ocupação": {
+    "pt": "Ocupação",
+    "en": "Occupancy",
+    "es": "Ocupación",
+    "it": "Occupazione",
+    "fr": "Occupation"
+  },
+  "Disponível a partir de": {
+    "pt": "Disponível a partir de",
+    "en": "Available from",
+    "es": "Disponible desde",
+    "it": "Disponibile dal",
+    "fr": "Disponible à partir du"
+  },
+  "Data a confirmar": {
+    "pt": "Data a confirmar",
+    "en": "Date to be confirmed",
+    "es": "Fecha por confirmar",
+    "it": "Data da confermare",
+    "fr": "Date à confirmer"
+  },
+  "Individual": {
+    "pt": "Individual",
+    "en": "Individual",
+    "es": "Individual",
+    "it": "Singola",
+    "fr": "Individuel"
+  },
+  "Depósito": {
+    "pt": "Depósito",
+    "en": "Deposit",
+    "es": "Depósito",
+    "it": "Deposito",
+    "fr": "Dépôt"
+  },
+  "Estadia mínima": {
+    "pt": "Estadia mínima",
+    "en": "Minimum stay",
+    "es": "Estancia mínima",
+    "it": "Soggiorno minimo",
+    "fr": "Durée minimale"
+  },
+  "Descrição": {
+    "pt": "Descrição",
+    "en": "Description",
+    "es": "Descripción",
+    "it": "Descrizione",
+    "fr": "Description"
+  },
+  "QUERO ESTE IMÓVEL": {
+    "pt": "QUERO ESTE IMÓVEL",
+    "en": "ASK ABOUT THIS HOME",
+    "es": "ME INTERESA ESTE INMUEBLE",
+    "it": "MI INTERESSA QUESTO IMMOBILE",
+    "fr": "CE LOGEMENT M'INTÉRESSE"
+  },
+  "Este imóvel já não está disponível.": {
+    "pt": "Este imóvel já não está disponível.",
+    "en": "This home is no longer available.",
+    "es": "Este inmueble ya no está disponible.",
+    "it": "Questo immobile non è più disponibile.",
+    "fr": "Ce logement n'est plus disponible."
+  },
+  "Veja outras opções disponíveis agora:": {
+    "pt": "Veja outras opções disponíveis agora:",
+    "en": "See other available options:",
+    "es": "Mira otras opciones disponibles:",
+    "it": "Vedi altre opzioni disponibili:",
+    "fr": "Consultez les autres offres disponibles :"
+  },
+  "Nenhum imóvel encontrado com esses filtros no momento.": {
+    "pt": "Nenhum imóvel encontrado com esses filtros no momento.",
+    "en": "No homes match these filters at the moment.",
+    "es": "No hay inmuebles con estos filtros por el momento.",
+    "it": "Al momento nessun immobile corrisponde a questi filtri.",
+    "fr": "Aucun logement ne correspond à ces filtres pour le moment."
+  },
+  "Bills included": {
+    "pt": "Contas incluídas",
+    "en": "Bills included",
+    "es": "Gastos incluidos",
+    "it": "Utenze incluse",
+    "fr": "Charges incluses"
+  },
+  "Mobiliado": {
+    "pt": "Mobiliado",
+    "en": "Furnished",
+    "es": "Amueblado",
+    "it": "Arredato",
+    "fr": "Meublé"
+  },
+  "Jardim": {
+    "pt": "Jardim",
+    "en": "Garden",
+    "es": "Jardín",
+    "it": "Giardino",
+    "fr": "Jardin"
+  },
+  "Varanda": {
+    "pt": "Varanda",
+    "en": "Balcony",
+    "es": "Balcón",
+    "it": "Balcone",
+    "fr": "Balcon"
+  },
+  "Estacionamento": {
+    "pt": "Estacionamento",
+    "en": "Parking",
+    "es": "Aparcamiento",
+    "it": "Parcheggio",
+    "fr": "Parking"
+  },
+  "Academia": {
+    "pt": "Academia",
+    "en": "Gym",
+    "es": "Gimnasio",
+    "it": "Palestra",
+    "fr": "Salle de sport"
+  },
+  "Concierge": {
+    "pt": "Concierge",
+    "en": "Concierge",
+    "es": "Conserjería",
+    "it": "Portineria",
+    "fr": "Conciergerie"
+  },
+  "Elevador": {
+    "pt": "Elevador",
+    "en": "Lift",
+    "es": "Ascensor",
+    "it": "Ascensore",
+    "fr": "Ascenseur"
+  },
+  "Tipo de imóvel": {
+    "pt": "Tipo de imóvel",
+    "en": "Property type",
+    "es": "Tipo de inmueble",
+    "it": "Tipo di immobile",
+    "fr": "Type de logement"
+  },
+  "Ocupantes": {
+    "pt": "Ocupantes",
+    "en": "Occupants",
+    "es": "Ocupantes",
+    "it": "Occupanti",
+    "fr": "Occupants"
+  },
+  "Orçamento máximo (£)": {
+    "pt": "Orçamento máximo (£)",
+    "en": "Maximum budget (£)",
+    "es": "Presupuesto máximo (£)",
+    "it": "Budget massimo (£)",
+    "fr": "Budget maximal (£)"
+  },
+  "Período": {
+    "pt": "Período",
+    "en": "Period",
+    "es": "Período",
+    "it": "Periodo",
+    "fr": "Période"
+  },
+  "Por semana": {
+    "pt": "Por semana",
+    "en": "Per week",
+    "es": "Por semana",
+    "it": "A settimana",
+    "fr": "Par semaine"
+  },
+  "Por mês": {
+    "pt": "Por mês",
+    "en": "Per month",
+    "es": "Por mes",
+    "it": "Al mese",
+    "fr": "Par mois"
+  },
+  "Data da mudança": {
+    "pt": "Data da mudança",
+    "en": "Moving date",
+    "es": "Fecha de mudanza",
+    "it": "Data del trasloco",
+    "fr": "Date du déménagement"
+  },
+  "Já mora em Londres?": {
+    "pt": "Já mora em Londres?",
+    "en": "Already living in London?",
+    "es": "¿Ya vives en Londres?",
+    "it": "Vivi già a Londra?",
+    "fr": "Vivez-vous déjà à Londres ?"
+  },
+  "Sim": {
+    "pt": "Sim",
+    "en": "Yes",
+    "es": "Sí",
+    "it": "Sì",
+    "fr": "Oui"
+  },
+  "Não": {
+    "pt": "Não",
+    "en": "No",
+    "es": "No",
+    "it": "No",
+    "fr": "Non"
+  },
+  "Concordo em enviar estas preferências à equipe pelo WhatsApp para atendimento. Este formulário não armazena dados no site.": {
+    "pt": "Concordo em enviar estas preferências à equipe pelo WhatsApp para atendimento. Este formulário não armazena dados no site.",
+    "en": "I agree to send these preferences to the team on WhatsApp for assistance. This form does not store data on the website.",
+    "es": "Acepto enviar estas preferencias al equipo por WhatsApp para recibir atención. Este formulario no almacena datos en el sitio.",
+    "it": "Acconsento a inviare queste preferenze al team su WhatsApp per assistenza. Questo modulo non memorizza dati sul sito.",
+    "fr": "J'accepte d'envoyer ces préférences à l'équipe sur WhatsApp pour être accompagné. Ce formulaire ne stocke pas de données sur le site."
+  },
+  "Enviar preferências pelo WhatsApp ↗": {
+    "pt": "Enviar preferências pelo WhatsApp ↗",
+    "en": "Send preferences on WhatsApp ↗",
+    "es": "Enviar preferencias por WhatsApp ↗",
+    "it": "Invia preferenze su WhatsApp ↗",
+    "fr": "Envoyer mes préférences sur WhatsApp ↗"
+  },
+  "WhatsApp indisponível no momento. Tente novamente mais tarde.": {
+    "pt": "WhatsApp indisponível no momento. Tente novamente mais tarde.",
+    "en": "WhatsApp is currently unavailable. Please try again later.",
+    "es": "WhatsApp no está disponible. Inténtalo más tarde.",
+    "it": "WhatsApp non è disponibile. Riprova più tardi.",
+    "fr": "WhatsApp est indisponible. Réessayez plus tard."
+  },
+  "Preço máximo (£)": {
+    "pt": "Preço máximo (£)",
+    "en": "Maximum price (£)",
+    "es": "Precio máximo (£)",
+    "it": "Prezzo massimo (£)",
+    "fr": "Prix maximal (£)"
+  },
+  "Máximo (£, período do anúncio)": {
+    "pt": "Máximo (£, período do anúncio)",
+    "en": "Maximum (£, listing period)",
+    "es": "Máximo (£, período del anuncio)",
+    "it": "Massimo (£, periodo dell'annuncio)",
+    "fr": "Maximum (£, période de l'annonce)"
+  },
+  "Disponível até": {
+    "pt": "Disponível até",
+    "en": "Available by",
+    "es": "Disponible hasta",
+    "it": "Disponibile entro",
+    "fr": "Disponible avant"
+  },
+  "Aluguel de imóveis em Londres para brasileiros. Informações de disponibilidade e preço são atualizadas continuamente — em caso de dúvida, confirme diretamente pelo WhatsApp.": {
+    "pt": "Aluguel de imóveis em Londres para brasileiros. Informações de disponibilidade e preço são atualizadas continuamente — em caso de dúvida, confirme diretamente pelo WhatsApp.",
+    "en": "London rentals with support in Portuguese. Availability and prices may change. Please confirm details on WhatsApp.",
+    "es": "Alquiler de inmuebles en Londres con atención en portugués. La disponibilidad y los precios pueden cambiar. Confirma los detalles por WhatsApp.",
+    "it": "Affitti a Londra con assistenza in portoghese. Disponibilità e prezzi possono cambiare. Conferma i dettagli su WhatsApp.",
+    "fr": "Locations à Londres avec accompagnement en portugais. Disponibilité et prix peuvent évoluer. Confirmez les détails sur WhatsApp."
+  },
+  "Fotografia de um imóvel do catálogo disponível": {
+    "pt": "Fotografia de um imóvel do catálogo disponível",
+    "en": "Photo of a home in the available listings",
+    "es": "Foto de un inmueble del catálogo disponible",
+    "it": "Foto di un immobile del catalogo disponibile",
+    "fr": "Photo d'un logement du catalogue disponible"
+  },
+  "Preço máximo em libras no período indicado em cada anúncio": {
+    "pt": "Preço máximo em libras no período indicado em cada anúncio",
+    "en": "Maximum price in pounds for the period stated in each listing",
+    "es": "Precio máximo en libras para el período de cada anuncio",
+    "it": "Prezzo massimo in sterline per il periodo di ogni annuncio",
+    "fr": "Prix maximal en livres pour la période indiquée dans chaque annonce"
+  },
+  "André Mendes, início": {
+    "pt": "André Mendes, início",
+    "en": "André Mendes, home",
+    "es": "André Mendes, inicio",
+    "it": "André Mendes, home",
+    "fr": "André Mendes, accueil"
+  },
+  "Navegação principal": {
+    "pt": "Navegação principal",
+    "en": "Main navigation",
+    "es": "Navegación principal",
+    "it": "Navigazione principale",
+    "fr": "Navigation principale"
+  },
+  "Ver imóveis ↗": {
+    "pt": "Ver imóveis ↗",
+    "en": "Browse homes ↗",
+    "es": "Ver inmuebles ↗",
+    "it": "Vedi immobili ↗",
+    "fr": "Voir les logements ↗"
+  },
+  "Catálogo temporariamente indisponível. Você pode enviar suas preferências pelo WhatsApp.": {
+    "pt": "Catálogo temporariamente indisponível. Você pode enviar suas preferências pelo WhatsApp.",
+    "en": "The catalogue is temporarily unavailable. You can send your preferences on WhatsApp.",
+    "es": "El catálogo no está disponible temporalmente. Puedes enviar tus preferencias por WhatsApp.",
+    "it": "Il catalogo è temporaneamente indisponibile. Puoi inviare le tue preferenze su WhatsApp.",
+    "fr": "Le catalogue est temporairement indisponible. Vous pouvez envoyer vos préférences sur WhatsApp."
+  },
+  "Catálogo de imóveis em Londres para quem já mora na cidade e quer mudar, com atendimento em português.": {
+    "pt": "Catálogo de imóveis em Londres para quem já mora na cidade e quer mudar, com atendimento em português.",
+    "en": "London rentals for people already living in the city and looking to move, with support in Portuguese.",
+    "es": "Alquileres en Londres para quienes ya viven en la ciudad y quieren mudarse, con atención en portugués.",
+    "it": "Affitti a Londra per chi vive già in città e vuole traslocare, con assistenza in portoghese.",
+    "fr": "Locations à Londres pour les personnes qui y vivent déjà et souhaitent déménager, avec un accompagnement en portugais."
+  },
+  "Imóveis em Londres": {
+    "pt": "Imóveis em Londres",
+    "en": "Homes in London",
+    "es": "Inmuebles en Londres",
+    "it": "Immobili a Londra",
+    "fr": "Logements à Londres"
+  },
+  "Não foi possível carregar esta página.": {
+    "pt": "Não foi possível carregar esta página.",
+    "en": "We could not load this page.",
+    "es": "No se pudo cargar esta página.",
+    "it": "Impossibile caricare questa pagina.",
+    "fr": "Impossible de charger cette page."
+  },
+  "Tentar novamente": {
+    "pt": "Tentar novamente",
+    "en": "Try again",
+    "es": "Reintentar",
+    "it": "Riprova",
+    "fr": "Réessayer"
+  },
+  "Este imóvel não está disponível no catálogo.": {
+    "pt": "Este imóvel não está disponível no catálogo.",
+    "en": "This home is not available in the catalogue.",
+    "es": "Este inmueble no está disponible en el catálogo.",
+    "it": "Questo immobile non è disponibile nel catalogo.",
+    "fr": "Ce logement ne figure pas dans le catalogue."
+  },
+  "Consultar pelo WhatsApp ↗": {
+    "pt": "Consultar pelo WhatsApp ↗",
+    "en": "Ask on WhatsApp ↗",
+    "es": "Consultar por WhatsApp ↗",
+    "it": "Chiedi su WhatsApp ↗",
+    "fr": "Contacter sur WhatsApp ↗"
+  },
+  "Não foi possível alterar o idioma. Tente novamente.": {
+    "pt": "Não foi possível alterar o idioma. Tente novamente.",
+    "en": "Could not change the language. Please try again.",
+    "es": "No se pudo cambiar el idioma. Inténtalo de nuevo.",
+    "it": "Impossibile cambiare lingua. Riprova.",
+    "fr": "Impossible de changer de langue. Réessayez."
+  }
+}

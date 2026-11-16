@@ -1,4 +1,5 @@
 'use client';
+import { preserveCoverOrder } from '@/lib/photo-order';
 
 import Image from 'next/image';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
@@ -182,6 +183,8 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       if (result.analyzed < 2) {
         return 'Não foi possível analisar fotos suficientes (rede ou CORS). A ordem foi mantida.';
       }
+      // Preserva capa e etiquetas manuais mesmo se alguma imagem não puder ser lida.
+      result.order = preserveCoverOrder(current, result.order);
       if (current.every((photo, index) => photo.id === result.order[index])) {
         await reload();
         return 'A sequência já está adequada aos critérios gratuitos de qualidade.';
@@ -197,7 +200,7 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
         }
       }
       await reload();
-      return 'Capa e ordem ajustadas sem API paga: ' + result.analyzed +
+      return 'Capa preservada e ambientes agrupados sem API paga: ' + result.analyzed +
         ' fotografias analisadas.' +
         (result.skipped ? ' ' + result.skipped + ' imagens ficaram no fim por não poderem ser analisadas.' : '');
     } catch {

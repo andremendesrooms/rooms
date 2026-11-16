@@ -1,0 +1,431 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import vm from "node:vm";
+import ts from "typescript";
+import { createRequire } from "node:module";
+const require = createRequire(import.meta.url);
+function load(file, mocks = {}) {
+  const code = ts.transpileModule(
+    fs.readFileSync(new URL("../" + file, import.meta.url), "utf8"),
+    {
+      fileName: file,
+      compilerOptions: {
+        jsx: ts.JsxEmit.ReactJSX,
+        module: ts.ModuleKind.CommonJS,
+        target: ts.ScriptTarget.ES2022,
+        esModuleInterop: true,
+      },
+    },
+  ).outputText;
+  const exports = {};
+  vm.runInNewContext(
+    code,
+    {
+      exports,
+      require: (name) => (name in mocks ? mocks[name] : require(name)),
+      process,
+      console,
+      URL,
+      Set,
+      Map,
+      Array,
+      Number,
+      Intl,
+      Error,
+      AbortSignal,
+    },
+    { filename: file },
+  );
+  return exports;
+}
+const photos = load("lib/photo-order.ts");
+const publication = load("lib/publication.ts");
+const format = load("lib/format.ts");
+const media = load("lib/photo-url.ts");
+test("photo ordering preserves cover, originals, and complete manual room groups", () => {
+  const current = [
+    { id: "b", room_group: "Bedroom" },
+    { id: "w", room_group: "Bathroom" },
+    { id: "b2", room_group: "Bedroom" },
+    { id: "w2", room_group: "Bathroom" },
+    { id: "unknown" },
+  ];
+  const actual = photos.preserveCoverOrder(current, [
+    "w",
+    "b2",
+    "w2",
+    "b",
+    "b",
+    "evil",
+  ]);
+  assert.deepEqual(Array.from(actual), ["b", "b2", "w", "w2", "unknown"]);
+  assert.equal(photos.preserveCoverOrder([], []).length, 0);
+});
+const ready = {
+  status: "inactive",
+  hidden: true,
+  validation_status: "ok",
+  pending_price: null,
+  price: 250,
+  postcode: "SW1",
+  type: "Double Room",
+  available_from: "2026-12-01",
+};
+test("publication requires verified real data, approved validation, and resolved price review", () => {
+  assert.throws(
+    () => publication.publicationChange(ready, "publish", false),
+    /real/,
+  );
+  for (const patch of [
+    { validation_status: "incomplete" },
+    { pending_price: 300 },
+    { price: 0 },
+    { price: NaN },
+    { postcode: "" },
+    { available_from: null },
+  ])
+    assert.throws(() =>
+      publication.publicationChange({ ...ready, ...patch }, "publish", true),
+    );
+  assert.equal(
+    JSON.stringify(publication.publicationChange(ready, "publish", true)),
+    JSON.stringify({ status: "available", hidden: false }),
+  );
+  assert.equal(
+    JSON.stringify(publication.publicationChange(ready, "hide", false)),
+    JSON.stringify({ hidden: true }),
+  );
+  assert.equal(
+    JSON.stringify(publication.publicationChange(ready, "rent", false)),
+    JSON.stringify({ status: "rented", hidden: true }),
+  );
+  assert.throws(
+    () => publication.publicationChange(ready, "invalid", true),
+    /inválida/,
+  );
+});
+test("photo URLs reject cross-project content, credentials, private buckets and deceptive hosts", () => {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://project.supabase.co";
+  const good =
+    "https://project.supabase.co/storage/v1/object/public/property-images/properties/abc/photo.jpg";
+  assert.equal(media.isTrustedPropertyPhotoUrl(good), true);
+  for (const url of [
+    good.replace("project.", "other."),
+    good.replace("https:", "http:"),
+    good.replace("public/property-images", "public/private"),
+    good.replace("project.supabase.co", "project.supabase.co.evil.com"),
+    good.replace("https://", "https://user:pass@"),
+    good.replace(".co/", ".co:999/"),
+    "javascript:alert(1)",
+    null,
+  ])
+    assert.equal(media.isTrustedPropertyPhotoUrl(url), false);
+});
+test("WhatsApp links encode the correct reference and reject unconfigured numbers", () => {
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "447700900123";
+  const url = new URL(format.whatsappLink("id-123", "Room & studio"));
+  assert.equal(url.pathname, "/447700900123");
+  assert.match(url.searchParams.get("text"), /id-123 \(Room & studio\)/);
+  for (const invalid of ["", "javascript:alert(1)", "+44 7700"]) {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = invalid;
+    assert.equal(format.whatsappLink("id-123"), "");
+  }
+});
+function mockQueries(responses = {}) {
+  const calls = [];
+  const supabase = {
+    from(table) {
+      const call = { table, filters: [], orders: [], columns: null };
+      calls.push(call);
+      const query = {
+        select(columns) {
+          call.columns = columns;
+          return query;
+        },
+        eq(...args) {
+          call.filters.push(["eq", ...args]);
+          return query;
+        },
+        neq(...args) {
+          call.filters.push(["neq", ...args]);
+          return query;
+        },
+        in(...args) {
+          call.filters.push(["in", ...args]);
+          return query;
+        },
+        lte(...args) {
+          call.filters.push(["lte", ...args]);
+          return query;
+        },
+        gte(...args) {
+          call.filters.push(["gte", ...args]);
+          return query;
+        },
+        order(...args) {
+          call.orders.push(args);
+          return query;
+        },
+        limit(value) {
+          call.limit = value;
+          return query;
+        },
+        maybeSingle() {
+          call.single = true;
+          return query;
+        },
+        then(resolve, reject) {
+          return Promise.resolve(
+            responses[table] ?? { data: call.single ? null : [], error: null },
+          ).then(resolve, reject);
+        },
+      };
+      return query;
+    },
+  };
+  return {
+    calls,
+    api: load("lib/queries.ts", {
+      "./supabase": { supabase },
+      "./photo-url": media,
+    }),
+  };
+}
+test("all public property reads use the safe view, explicit fields and available status", async () => {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://project.supabase.co";
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-only";
+  const { calls, api } = mockQueries();
+  await api.getFeaturedProperties();
+  await api.getNewProperties();
+  await api.getProperties();
+  await api.getPropertyById("x");
+  await api.getAvailableTypes();
+  await api.getAvailableRegions();
+  await api.getSimilarProperties({
+    id: "x",
+    type: "Flat",
+    region: "West",
+    price: 300,
+  });
+  assert.equal(calls.length, 7);
+  for (const call of calls) {
+    assert.equal(call.table, "properties_public");
+    assert.ok(
+      call.filters.some(
+        (f) =>
+          JSON.stringify(f) === JSON.stringify(["eq", "status", "available"]),
+      ),
+    );
+    assert.ok(!call.columns.includes("*"));
+    for (const forbidden of [
+      "address",
+      "latitude",
+      "longitude",
+      "landlord",
+      "commission",
+      "internal_notes",
+    ])
+      assert.ok(!call.columns.split(",").includes(forbidden));
+  }
+});
+test("budget filters match their declared weekly/monthly period and reject NaN", async () => {
+  const { calls, api } = mockQueries();
+  await api.getProperties({
+    maxPrice: 1200,
+    priceFrequency: "month",
+    region: "West",
+    type: "Flat",
+    occupancy: "couple",
+    availableFrom: "2026-12-01",
+  });
+  assert.ok(
+    calls[0].filters.some(
+      (f) =>
+        JSON.stringify(f) ===
+        JSON.stringify(["eq", "price_frequency", "month"]),
+    ),
+  );
+  assert.ok(
+    calls[0].filters.some(
+      (f) => JSON.stringify(f) === JSON.stringify(["lte", "price", 1200]),
+    ),
+  );
+  await api.getProperties({ maxPrice: NaN });
+  assert.ok(!calls[1].filters.some((f) => f[1] === "price"));
+});
+test("property photos stay sorted, reject foreign media and belong only to fetched ids", async () => {
+  const { calls, api } = mockQueries({
+    properties_public: { data: [{ id: "a", type: "Flat" }], error: null },
+    property_photos: {
+      data: [
+        {
+          property_id: "a",
+          url: "https://project.supabase.co/storage/v1/object/public/property-images/properties/a/1.jpg",
+          sort_order: 0,
+        },
+        { property_id: "a", url: "https://evil.com/photo.jpg", sort_order: 1 },
+      ],
+      error: null,
+    },
+  });
+  const result = await api.getProperties();
+  assert.equal(result[0].photos.length, 1);
+  assert.equal(calls[1].table, "property_photos");
+  assert.equal(calls[1].orders[0][0], "sort_order");
+  assert.equal(calls[1].filters[0][1], "property_id");
+});
+test("catalogue outage is not silently reported as zero available properties", async () => {
+  const { api } = mockQueries({
+    properties_public: { data: null, error: { message: "test outage" } },
+  });
+  await assert.rejects(api.getProperties(), /indisponível/);
+  await assert.rejects(api.getPropertyById("x"), /indisponível/);
+});
+test("every dictionary entry supplies five nonempty translations", () => {
+  const catalog = JSON.parse(
+    fs.readFileSync(new URL("../lib/translations.json", import.meta.url)),
+  );
+  assert.ok(Object.keys(catalog).length > 100);
+  for (const [key, row] of Object.entries(catalog))
+    for (const locale of ["pt", "en", "es", "it", "fr"])
+      assert.ok(row[locale]?.trim(), `${key}: ${locale}`);
+  const { parseLanguage, translator } = load("lib/i18n.ts", {
+    "./translations.json": catalog,
+  });
+  for (const locale of ["pt", "en", "es", "it", "fr"]) {
+    assert.equal(parseLanguage(locale), locale);
+    assert.ok(translator(locale)("Imóveis disponíveis"));
+    assert.equal(
+      translator(locale)("Original property title"),
+      "Original property title",
+    );
+  }
+  assert.equal(parseLanguage("de"), "pt");
+});
+test("paid photo analysis cannot run by default", async () => {
+  delete process.env.ENABLE_PAID_PHOTO_ANALYSIS;
+  const { POST } = load("app/api/admin/imoveis/[id]/ordenar-fotos/route.ts");
+  const response = await POST({}, { params: Promise.resolve({ id: "abc" }) });
+  assert.equal(response.status, 503);
+  assert.match((await response.json()).error, /desativada/);
+});
+test("invalid URL dates, nonfinite prices and repeated filters are ignored", () => {
+  const { parsePropertyFilters } = load("lib/filters.ts");
+  for (const params of [
+    { maxPrice: "Infinity", availableFrom: "2026-02-30" },
+    { maxPrice: "-1", availableFrom: "not-a-date" },
+    { maxPrice: ["100", "200"], type: ["Flat", "Room"] },
+  ]) {
+    const parsed = parsePropertyFilters(params);
+    assert.equal(parsed.maxPrice, undefined);
+    assert.equal(parsed.availableFrom, undefined);
+  }
+  const good = parsePropertyFilters({
+    type: "Flat",
+    region: "West",
+    occupancy: "couple",
+    maxPrice: "1200",
+    priceFrequency: "month",
+    availableFrom: "2026-12-01",
+  });
+  assert.equal(good.maxPrice, 1200);
+  assert.equal(good.priceFrequency, "month");
+  assert.equal(good.availableFrom, "2026-12-01");
+});
+test("language endpoint enforces same host, valid locale, and secure cookie settings", async () => {
+  const { POST } = load("app/api/language/route.ts", {
+    "@/lib/i18n": { languages: ["pt", "en", "es", "it", "fr"] },
+  });
+  const request = (origin, language) => ({
+    headers: new Headers({
+      host: "example.com",
+      ...(origin ? { origin } : {}),
+    }),
+    json: async () => ({ language }),
+  });
+  for (const origin of ["https://evil.example", "not-a-url", null])
+    assert.equal((await POST(request(origin, "en"))).status, 403);
+  assert.equal((await POST(request("https://example.com", "de"))).status, 400);
+  const response = await POST(request("https://example.com", "fr"));
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("set-cookie"), /rooms-language=fr/);
+  assert.match(response.headers.get("set-cookie"), /HttpOnly/i);
+  assert.match(response.headers.get("set-cookie"), /SameSite=lax/i);
+});
+test("property cards render translated controls but preserve original database copy in all five languages", async () => {
+  const React = require("react");
+  const { renderToStaticMarkup } = require("react-dom/server");
+  const catalog = JSON.parse(
+    fs.readFileSync(new URL("../lib/translations.json", import.meta.url)),
+  );
+  const { translator } = load("lib/i18n.ts", {
+    "./translations.json": catalog,
+  });
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "447700900123";
+  for (const language of ["pt", "en", "es", "it", "fr"]) {
+    const t = translator(language);
+    const { default: WhatsApp } = load("components/WhatsAppButton.tsx", {
+      "./LanguageProvider": { useTranslation: () => t },
+      "@/lib/format": format,
+      "@/lib/supabase": { supabase: {} },
+    });
+    const { default: Card } = load("components/PropertyCard.tsx", {
+      "@/lib/i18n-server": { getTranslator: async () => t },
+      "next/image": ({ fill, sizes, ...props }) =>
+        React.createElement("img", props),
+      "next/link": ({ children, ...props }) =>
+        React.createElement("a", props, children),
+      "./Badge": ({ children }) => React.createElement("span", null, children),
+      "./WhatsAppButton": WhatsApp,
+      "@/lib/format": format,
+      "@/components/ArrowIcon": () =>
+        React.createElement("svg", { "aria-hidden": true }),
+    });
+    const html = renderToStaticMarkup(
+      await Card({
+        property: {
+          id: "fixture-never-published",
+          title: "Título original do banco",
+          type: "Double Room",
+          region: "West",
+          postcode: "W1",
+          price: 250,
+          price_frequency: "week",
+          photos: [],
+          featured: true,
+          bedrooms: 1,
+          bathrooms: 1,
+          available_from: "2026-12-01",
+          occupancy: "couple",
+        },
+      }),
+    );
+    assert.ok(html.includes("Título original do banco"));
+    assert.ok(html.includes(t("Foto a confirmar")));
+    assert.ok(html.includes(t("Casal")));
+    assert.ok(html.includes("/" + t("semana")));
+    assert.ok(html.includes("wa.me/447700900123"));
+    assert.ok(html.includes("fixture-never-published"));
+    assert.equal(
+      (html.match(/<a\s/g) || []).length,
+      (html.match(/<\/a>/g) || []).length,
+    );
+  }
+});
+test("Netlify skips review-branch deploys without changing other branches", () => {
+  const { spawnSync } = require("node:child_process");
+  const script = new URL("../scripts/netlify-ignore.cjs", import.meta.url)
+    .pathname;
+  for (const [branch, status] of [
+    ["codex/issue-1-lancamento", 0],
+    ["painel-admin", 1],
+    ["main", 1],
+  ])
+    assert.equal(
+      spawnSync(process.execPath, [script], {
+        env: { ...process.env, BRANCH: branch },
+      }).status,
+      status,
+    );
+});

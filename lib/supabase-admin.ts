@@ -8,11 +8,9 @@ import { createClient } from '@supabase/supabase-js';
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!url || !publishableKey) {
-  throw new Error('Configuração pública do Supabase ausente.');
-}
+export const adminConfigured = Boolean(url && publishableKey);
 
-export const adminSupabase = createClient(url, publishableKey, {
+export const adminSupabase = createClient(url || 'https://configuration-missing.invalid', publishableKey || 'configuration-missing', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,

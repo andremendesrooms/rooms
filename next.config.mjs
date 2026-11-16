@@ -2,15 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    // Fotos vêm do Supabase Storage — libera qualquer projeto *.supabase.co.
-    // Quando o domínio custom de Storage for definido, restrinja aqui.
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**.supabase.co',
-        pathname: '/storage/v1/object/public/**',
-      },
-    ],
+    remotePatterns: process.env.NEXT_PUBLIC_SUPABASE_URL
+      ? [
+          {
+            protocol: "https",
+            hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname,
+            pathname: "/storage/v1/object/public/property-images/properties/**",
+          },
+        ]
+      : [],
   },
 };
 

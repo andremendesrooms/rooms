@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { adminSupabase } from '@/lib/supabase-admin';
+import { adminSupabase, adminConfigured } from '@/lib/supabase-admin';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -16,6 +16,7 @@ export default function AdminLoginPage() {
   useEffect(() => {
     let alive = true;
     async function checkSession() {
+      if (!adminConfigured) { setMessage('Painel indisponível: configuração do Supabase ausente.'); setChecking(false); return; }
       const { data: userData } = await adminSupabase.auth.getUser();
       if (userData.user) {
         const { data: membership } = await adminSupabase
@@ -37,6 +38,7 @@ export default function AdminLoginPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!adminConfigured) { setMessage('Painel indisponível: configuração do Supabase ausente.'); return; }
     setBusy(true);
     setMessage('');
     try {

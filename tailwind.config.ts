@@ -5,10 +5,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: '#14213D', // navy — headers, texto principal, confiança
-        paper: '#F1F3F5', // fundo claro, tom frio (não o bege genérico)
+        ink: '#242424', // grafite — cabeçalhos e texto principal
+        paper: '#FAFAF8', // branco suave — fundo público
         route: {
-          gold: '#C98A2C', // destaque principal — CTAs, preços, badges
+          gold: '#B94414', // laranja com contraste para CTAs, preços e badges
           green: '#2F6E51', // sucesso / disponível
           red: '#B23A2E', // alerta / hot deal, usado com moderação
         },
