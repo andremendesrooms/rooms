@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [painel-admin]
   push:
-    branches: ["codex/**"]
+    branches: ["painel-admin", "codex/**"]
 permissions:
   contents: read
 jobs:
