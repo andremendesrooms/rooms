@@ -94,7 +94,106 @@ export function rankTextNearby(
         title.includes(input) ? 1 : 0;
       return { property, score, index };
     })
+    .filter((row) => row.score > 0)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, Math.max(1, limit))
     .map(x => ({ property: x.property, distanceKm: null }));
+}
+
+
+// Area-first discovery: exact area matches win. If none exists, return actual
+// properties ranked from the requested station/postcode outward. Never invent
+// inventory and never label text-only results as geographic neighbours.
+export type AreaSearchResult = {
+  kind: 'exact' | 'nearby' | 'distant' | 'text' | 'unresolved' | 'empty';
+  entries: NearbyEntry[];
+  radiusKm: number | null;
+  located: number;
+};
+
+function normalizePlace(value: string): string {
+  return value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\b(underground|overground|railway|station|estacao|london|uk)\b/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function inRequestedArea(property: PropertyWithPhotos, request: string): boolean {
+  const target = normalizePlace(request);
+  if (!target) return false;
+
+  if (postcodeKind(request)) {
+    const postcode = normalizedPostcode(property.postcode || '');
+    const requested = normalizedPostcode(request);
+    return postcode === requested ||
+      (postcodeKind(request) === 'outcode' &&
+        postcode.replace(/[0-9][A-Z]{2}$/, '') === requested);
+  }
+
+  return [property.region, property.nearest_station]
+    .some(value => value && normalizePlace(value) === target);
+}
+
+export function selectAreaAlternatives(
+  properties: PropertyWithPhotos[],
+  request: string,
+  origin: Coordinates | null,
+  locations: Map<string, Coordinates>,
+  limit = 12,
+): AreaSearchResult {
+  if (!properties.length) {
+    return { kind: 'empty', entries: [], radiusKm: null, located: 0 };
+  }
+  const ranked = origin
+    ? rankNearbyProperties(properties, origin, locations, undefined, properties.length)
+    : { entries: properties.map(property => ({ property, distanceKm: null })),
+        located: 0 };
+
+  const exact = ranked.entries.filter(entry => inRequestedArea(entry.property, request));
+  if (exact.length) {
+    return {
+      kind: 'exact',
+      entries: exact.slice(0, limit),
+      radiusKm: null,
+      located: ranked.located,
+    };
+  }
+
+  if (origin && ranked.located > 0) {
+    const locatedEntries = ranked.entries.filter(
+      (entry): entry is NearbyEntry & { distanceKm: number } =>
+        entry.distanceKm !== null,
+    );
+    // Expand automatically until a useful set of alternatives is found.
+    // Use a single outer bound to avoid flooding the visitor with distant
+    // neighbourhoods; clearly distinguish those if none are near enough.
+    const radii = [1, 3, 5, 8, 12];
+    const chosenRadius = radii.find(radius =>
+      locatedEntries.filter(entry => entry.distanceKm <= radius).length >= 3)
+      ?? radii.find(radius =>
+        locatedEntries.some(entry => entry.distanceKm <= radius));
+    if (chosenRadius !== undefined) {
+      return {
+        kind: 'nearby',
+        entries: locatedEntries.filter(entry => entry.distanceKm <= chosenRadius)
+          .slice(0, limit),
+        radiusKm: chosenRadius,
+        located: ranked.located,
+      };
+    }
+    return {
+      kind: 'distant',
+      entries: locatedEntries.slice(0, Math.min(limit, 6)),
+      radiusKm: null,
+      located: ranked.located,
+    };
+  }
+
+  const textMatches = rankTextNearby(properties, request, limit);
+  return {
+    kind: textMatches.length ? 'text' : 'unresolved',
+    entries: textMatches,
+    radiusKm: null,
+    located: ranked.located,
+  };
 }
