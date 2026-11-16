@@ -41,7 +41,7 @@ export default async function HomePage() {
             </h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/75">
               {t(
-                "Já mora em Londres ou está planejando chegar? Encontre seu próximo imóvel, com informações claras e contato direto.",
+                "Já mora em Londres e quer mudar? Encontre um espaço para a sua próxima fase, com atendimento em português e condições claras.",
               )}
             </p>
             <Link
