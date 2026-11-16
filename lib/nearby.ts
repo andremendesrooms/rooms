@@ -169,7 +169,7 @@ export function selectAreaAlternatives(
     // neighbourhoods; clearly distinguish those if none are near enough.
     const radii = [1, 3, 5, 8, 12];
     const chosenRadius = radii.find(radius =>
-      locatedEntries.filter(entry => entry.distanceKm <= radius).length >= 3)
+      locatedEntries.filter(entry => entry.distanceKm <= radius).length >= 2)
       ?? radii.find(radius =>
         locatedEntries.some(entry => entry.distanceKm <= radius));
     if (chosenRadius !== undefined) {
