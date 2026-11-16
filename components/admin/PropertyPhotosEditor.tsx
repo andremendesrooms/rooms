@@ -181,6 +181,52 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
     setBusy(false);
   }
 
+  async function makeCover(photoId: string) {
+    if (busy || photos.length < 2 || photos[0]?.id === photoId) return;
+    if (!window.confirm('Definir esta fotografia como capa do anúncio? Se o imóvel estiver publicado, a mudança ficará visível aos clientes.')) return;
+    setBusy(true);
+    setError('');
+    setNotice('Atualizando a fotografia principal...');
+    try {
+      const { data: identity } = await adminSupabase.auth.getUser();
+      const { data: member } = await adminSupabase.from('admin_users')
+        .select('role').eq('id', identity.user?.id ?? '').eq('active', true).maybeSingle();
+      if (!identity.user || !member || !['super_admin','manager'].includes(member.role)) {
+        setNotice('Sessão sem autorização para alterar a capa.');
+        return;
+      }
+      const { data, error: queryError } = await adminSupabase.from('property_photos')
+        .select('id,url,sort_order').eq('property_id', propertyId)
+        .order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+      if (queryError || !data) {
+        setNotice('Falha ao consultar a galeria. A ordem não foi alterada.');
+        return;
+      }
+      const full = data as Photo[];
+      const selected = full.find(p => p.id === photoId);
+      if (!selected) {
+        setNotice('A foto não foi encontrada. Atualize a página.');
+        return;
+      }
+      const order = [selected, ...full.filter(p => p.id !== photoId)];
+      for (const [index, photo] of order.entries()) {
+        const { error: writeError } = await adminSupabase.from('property_photos')
+          .update({ sort_order: index }).eq('id', photo.id).eq('property_id', propertyId);
+        if (writeError) {
+          setNotice('A atualização foi interrompida. Confira a ordem atual.');
+          await reload();
+          return;
+        }
+      }
+      await reload();
+      setNotice('Foto principal definida manualmente. A próxima importação com seleção automática poderá escolher outra capa.');
+    } catch {
+      setNotice('Não foi possível definir a capa. Confira a conexão.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function uploadPhotos() {
     if (busy || !confirmed || files.length === 0) return;
     setError('');
@@ -285,7 +331,16 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
                     <Image src={photo.url} alt={'Fotografia ' + (index + 1) + ' do imóvel ' + propertyId}
                       fill className="object-cover" sizes="(max-width: 640px) 50vw, 200px" />
                   </div>
-                  <p className="mt-1 text-xs text-slate-soft">Foto {index + 1}</p>
+                  <p className="mt-1 text-xs text-slate-soft">
+                    {index === 0 ? 'Foto 1 · Capa atual' : 'Foto ' + (index + 1)}
+                  </p>
+                  {index !== 0 && (
+                    <button type="button" disabled={busy}
+                      onClick={() => void makeCover(photo.id)}
+                      className="mt-1 rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-ink disabled:opacity-60">
+                      Definir como capa
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
