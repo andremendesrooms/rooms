@@ -1,36 +1,37 @@
-# André Mendes Rooms — seleção automática de capa e ordem das fotografias
+# André Mendes Rooms — escolha automática da capa e ordenação das fotos
 
-## Estado
-- Implementado no código da branch `painel-admin`; **ainda não foi testado com uma chave de API real**.
-- Não faz chamadas pagas se `ANTHROPIC_API_KEY` não estiver configurada.
-- Após o upload, tenta uma análise visual do lote **uma única vez**, salva a sequência em `property_photos.sort_order` e recarrega a galeria.
-- O primeiro `sort_order` (zero) é a **capa**, porque o site público ordena por `sort_order`.
-- A qualquer momento é possível clicar em **Reorganizar fotos existentes com IA** (nova chamada, com custo).
-- Não apaga ou modifica pixels/arquivos originais.
-- Limite inicial de análise: 30 fotos por imóvel. Mais fotos permanecem na ordem anterior; para um imóvel com mais de 30 fotos, será preciso ampliar a rotina.
-- A análise prioriza iluminação, nitidez, enquadramento, apresentação fiel e diversidade visual dos ambientes. Não é garantia de conversões.
+## Modo atual: GRATUITO, sem API paga
 
-## É necessária uma assinatura do Claude?
-**Não.** Claude Pro e acesso à API são produtos separados. Para habilitar o uso com Claude, use uma conta no Claude Console e adquira créditos de API ou utilize créditos já elegíveis. A API é cobrada conforme uso. Leia os preços antes de ativar.
+- Após adicionar fotos no painel de edição, o sistema tenta analisar iluminação, contraste, detalhes/nitidez aproximada, resolução, proporção e semelhança entre as imagens.
+- Analisa localmente no navegador (Canvas), sem enviar fotos a modelos de IA de terceiros.
+- Escolhe como capa a fotografia com melhor avaliação técnica; as demais são organizadas para evitar fotos muito parecidas seguidas.
+- A ordem fica em `property_photos.sort_order` no Supabase. A primeira foto da sequência é a capa exibida no site.
+- Há o botão **Reorganizar fotos automaticamente (grátis)** para fotos já cadastradas.
+- O processamento ocorre após o upload ou quando solicitado, nunca para cada visita do cliente.
+- Não altera arquivos nem publica imóveis ocultos; apenas a sequência de exibição.
+- Nenhuma chave de API ou assinatura Claude é necessária.
+- Limite de até **30 fotografias por imóvel** para avaliação gratuita atual; o upload permite até 30 por lote.
+- Essa avaliação **não é IA semântica**: não identifica tipos de cômodo, decoração ou atratividade comercial e não garante aumento de conversões. Revise a capa antes de publicar.
+- Se o navegador não conseguir carregar imagens remotas devido a CORS/conectividade, mantém a ordem anterior e informa o problema.
+- Ordenação é feita atualizando sort_order na tabela, sob as permissões do admin autenticado. Em caso de falha parcial deve-se conferir a ordem exibida.
+- Validação com imagens reais e testes no navegador ainda necessária.
 
-## Como ativar
-1. Acessar https://platform.claude.com/ e criar/obter uma chave de API.
-2. Adicionar a variável de ambiente **exclusivamente no servidor**: `ANTHROPIC_API_KEY`.
-3. Para testes locais: inserir a variável em `.env.local` **nunca versionar** (o .gitignore já ignora `.env*.local`).
-4. Reiniciar `npm run dev`.
-5. Para o site Netlify: **Project configuration → Environment variables** (criar segredo com o nome `ANTHROPIC_API_KEY`), habilitado para Functions e redeploy.
-6. Não inserir a chave em campos `NEXT_PUBLIC_...`, no GitHub, em screenshots ou no chat.
-7. Testar primeiro em um imóvel fictício e conferir que a capa escolhida é apropriada.
+## Integração futura com IA de visão (OPCIONAL/PAGA)
 
-Configuração opcional: `ANTHROPIC_VISION_MODEL` (padrão `claude-sonnet-4-6`).
+- Código de rota `/api/admin/imoveis/[id]/ordenar-fotos` foi preparado para Anthropic, mas **não é chamado** pelo painel no modo gratuito.
+- Para usar IA de visão futuramente, será preciso configurar uma chave de API no servidor e testar custos, privacidade e permissões.
+- Assinaturas Claude Pro não substituem créditos de API.
+- A decisão de contratar pode ficar para depois, sem interromper o uso do catálogo.
 
-## Pasta de referência
-O navegador não pode ler o computador por conta própria. Na edição do imóvel, o usuário pode selecionar a pasta correspondente ao mesmo imóvel/unidade via seletor de pastas; o upload ocorre com confirmação e a análise visual vem depois.
+## Pastas de referência
 
-**NÃO IMPLEMENTADO:** sincronização automática contínua da biblioteca local `LISTA ATUAL` ou Google Drive, varredura de todas as pastas ou correspondência automática entre diretórios e imóveis. Essa etapa exige um importador explícito com correspondência por landlord + postcode + unidade; casos ambíguos exigem confirmação e a mera presença da foto nunca define disponibilidade.
+- Em cada imóvel, pode-se escolher **manualmente a pasta certa** para upload, com autorização explícita do navegador e confirmação da unidade.
+- **Ainda NÃO existe** sincronização automática da árvore inteira `LISTA ATUAL` / Google Drive e correspondência automática das pastas com imóveis.
+- Para criar importação centralizada, validar por landlord + postcode + unidade; fotos armazenadas não comprovam disponibilidade e jamais devem mudar o status por si.
 
-## Cuidados
-- Ao analisar, a API de IA recebe URLs públicas das fotos selecionadas. Não enviar documentos ou fotos confidenciais.
-- A IA apenas altera `sort_order` em `property_photos`, sem mudar `status`, `hidden` ou preços.
-- Se não houver chave, créditos, resposta válida ou ocorrer timeout, as fotos permanecem no sistema e a ordem anterior é preservada na medida do possível.
-- Em imóveis já publicados, fotos podem ficar visíveis após o upload, antes da conclusão da análise. Para um lançamento, validar com rascunhos ocultos primeiro.
+## Segurança
+
+- Jamais subir documentos pessoais em buckets públicos do Supabase.
+- Não colocar chaves privadas no GitHub, em conversas ou em variáveis `NEXT_PUBLIC_`.
+- A análise gratuita é local, não faz chamadas de API de IA.
+- Imóvel publicado pode receber fotos visíveis assim que o upload termina. Testar primeiro com rascunhos ocultos.
