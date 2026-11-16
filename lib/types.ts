@@ -42,6 +42,7 @@ export interface PropertyPhoto {
 }
 
 export interface PropertyFilters {
+  near?: string;
   type?: string;
   occupancy?: string;
   region?: string;
