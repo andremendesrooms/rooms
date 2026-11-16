@@ -19,6 +19,7 @@ export default async function FilterBar({
     maxPrice?: string;
     priceFrequency?: string;
     availableFrom?: string;
+    near?: string;
   };
 }) {
   const t = await getTranslator();
@@ -28,6 +29,18 @@ export default async function FilterBar({
       method="get"
       className="mb-6 grid grid-cols-2 gap-2 rounded-xl border border-black/5 bg-white p-3 sm:grid-cols-3 lg:grid-cols-5"
     >
+      <label htmlFor="filter-near" className="col-span-2 block text-xs font-semibold text-ink sm:col-span-3 lg:col-span-5">
+        {t("Perto de qual estação, região ou postcode?")}
+        <input id="filter-near" type="search" name="near"
+          maxLength={80} autoComplete="off"
+          defaultValue={current.near ?? ""}
+          placeholder={t("Ex.: London Bridge, Brixton ou SW16")}
+          className="field mt-2 w-full"
+        />
+        <span className="mt-1 block text-xs font-normal text-slate-soft">
+          {t("Proximidade geográfica; compare o tempo de transporte público no Google Maps.")}
+        </span>
+      </label>
       <select
         aria-label={t("Tipo de imóvel")}
         name="type"
