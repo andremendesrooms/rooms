@@ -159,23 +159,26 @@ export default function NovoImovelPage() {
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
       <Link href="/admin/imoveis" className="text-sm underline">Voltar aos imóveis</Link>
-      <h1 className="mt-5 font-display text-3xl text-ink">Cadastrar imóvel</h1>
+      <h1 className="mt-5 font-display text-3xl text-ink">Cadastro rápido de imóvel</h1>
       <p className="mt-3 text-sm text-slate-soft">
-        Este formulário salva um rascunho interno. O imóvel permanece oculto e
-        inativo até a revisão dos dados e a publicação autorizada.
+        Preencha apenas o essencial para começar. Depois você pode adicionar fotos e
+        completar os detalhes. O anúncio sempre é salvo oculto e sem publicação automática.
       </p>
 
       {createdId && (
         <div role="status" className="mt-6 rounded-xl border border-green-300 bg-green-50 p-5 text-green-900">
           <p className="font-semibold">Rascunho salvo. O imóvel não foi publicado.</p>
           <p className="mt-2 font-mono text-sm">Referência: {createdId}</p>
-          <Link href="/admin/imoveis" className="mt-3 inline-block text-sm underline">
-            Ver na lista de imóveis
-          </Link>
+          <div className="mt-3 flex flex-wrap gap-4">
+            <Link href={'/admin/imoveis/' + encodeURIComponent(createdId)}
+              className="text-sm font-semibold underline">Editar dados, fotos e publicação</Link>
+            <Link href="/admin/imoveis" className="text-sm underline">Voltar ao catálogo</Link>
+          </div>
         </div>
       )}
 
       <form onSubmit={save} className="mt-7 space-y-6 rounded-2xl bg-white p-6 shadow-sm">
+        <p className="text-sm font-semibold text-ink">Dados principais</p>
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="type" className={labelClass}>Tipo de imóvel *</label>
@@ -186,13 +189,7 @@ export default function NovoImovelPage() {
             </select>
           </div>
           <div>
-            <label htmlFor="title" className={labelClass}>Título do anúncio</label>
-            <input id="title" className={inputClass} value={form.title}
-              onChange={(e) => update('title', e.target.value)}
-              placeholder="Ex.: Quarto casal em Streatham" />
-          </div>
-          <div>
-            <label htmlFor="postcode" className={labelClass}>Postcode</label>
+            <label htmlFor="postcode" className={labelClass}>Postcode *</label>
             <input id="postcode" className={inputClass} value={form.postcode}
               onChange={(e) => update('postcode', e.target.value)}
               placeholder="Ex.: SW16 5LN" />
@@ -204,43 +201,23 @@ export default function NovoImovelPage() {
               placeholder="Ex.: Room 2, Suite 1" />
           </div>
           <div>
-            <label htmlFor="address" className={labelClass}>Endereço (interno nesta etapa)</label>
-            <input id="address" className={inputClass} value={form.address}
-              onChange={(e) => update('address', e.target.value)} />
-          </div>
-          <div>
             <label htmlFor="region" className={labelClass}>Região</label>
             <input id="region" className={inputClass} value={form.region}
               onChange={(e) => update('region', e.target.value)}
               placeholder="Ex.: Streatham" />
           </div>
           <div>
-            <label htmlFor="price" className={labelClass}>Aluguel em £</label>
+            <label htmlFor="price" className={labelClass}>Aluguel (£)</label>
             <input id="price" type="number" min="0.01" step="0.01" className={inputClass}
               value={form.price} onChange={(e) => update('price', e.target.value)}
               placeholder="Ex.: 270" />
           </div>
           <div>
-            <label htmlFor="frequency" className={labelClass}>Periodicidade do aluguel</label>
+            <label htmlFor="frequency" className={labelClass}>Cobrança</label>
             <select id="frequency" className={inputClass} value={form.price_frequency}
               onChange={(e) => update('price_frequency', e.target.value)}>
-              <option value="week">Semanal</option>
-              <option value="month">Mensal</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="bedrooms" className={labelClass}>Quantidade de quartos</label>
-            <input id="bedrooms" type="number" min="0" step="1" className={inputClass}
-              value={form.bedrooms} onChange={(e) => update('bedrooms', e.target.value)} />
-          </div>
-          <div>
-            <label htmlFor="occupancy" className={labelClass}>Ocupação</label>
-            <select id="occupancy" className={inputClass} value={form.occupancy}
-              onChange={(e) => update('occupancy', e.target.value)}>
-              <option value="">Não informado</option>
-              <option value="single">Uma pessoa</option>
-              <option value="couple">Casal</option>
-              <option value="family">Família</option>
+              <option value="week">Por semana</option>
+              <option value="month">Por mês</option>
             </select>
           </div>
           <div>
@@ -249,11 +226,44 @@ export default function NovoImovelPage() {
               onChange={(e) => update('available_from', e.target.value)} />
           </div>
         </div>
-        <div>
-          <label htmlFor="description" className={labelClass}>Descrição / observações</label>
-          <textarea id="description" rows={4} className={inputClass} value={form.description}
-            onChange={(e) => update('description', e.target.value)} />
-        </div>
+        <details className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <summary className="cursor-pointer font-semibold text-ink">
+            + Informações opcionais (preencher depois, se preferir)
+          </summary>
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+              <label htmlFor="title" className={labelClass}>Título do anúncio</label>
+              <input id="title" className={inputClass} value={form.title}
+                onChange={(e) => update('title', e.target.value)}
+                placeholder="Ex.: Quarto casal em Streatham" />
+            </div>
+            <div>
+              <label htmlFor="address" className={labelClass}>Endereço (interno)</label>
+              <input id="address" className={inputClass} value={form.address}
+                onChange={(e) => update('address', e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="bedrooms" className={labelClass}>Quantidade de quartos</label>
+              <input id="bedrooms" type="number" min="0" step="1" className={inputClass}
+                value={form.bedrooms} onChange={(e) => update('bedrooms', e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor="occupancy" className={labelClass}>Ocupação</label>
+              <select id="occupancy" className={inputClass} value={form.occupancy}
+                onChange={(e) => update('occupancy', e.target.value)}>
+                <option value="">Não informado</option>
+                <option value="single">Uma pessoa</option>
+                <option value="couple">Casal</option>
+                <option value="family">Família</option>
+              </select>
+            </div>
+          </div>
+          <div className="mt-5">
+            <label htmlFor="description" className={labelClass}>Descrição / observações</label>
+            <textarea id="description" rows={4} className={inputClass} value={form.description}
+              onChange={(e) => update('description', e.target.value)} />
+          </div>
+        </details>
         <p className="text-sm text-slate-soft">
           O sistema gera a referência automaticamente. Preços, disponibilidade e
           localização deverão ser confirmados antes da publicação.
