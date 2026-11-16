@@ -447,3 +447,47 @@ test("Polish outreach keeps the original property reference and title", () => {
     url.searchParams.get("text").includes("property-123 (Original title $&)"),
   );
 });
+
+
+test("permanent deletion is gated by two confirmations, super_admin and archival", () => {
+  const button = fs.readFileSync(
+    new URL("../components/admin/PermanentDeleteButton.tsx", import.meta.url), "utf8");
+  const api = fs.readFileSync(
+    new URL("../app/api/admin/imoveis/[id]/excluir-permanentemente/route.ts", import.meta.url), "utf8");
+  const gate = fs.readFileSync(
+    new URL("../lib/server/permanent-deletion.ts", import.meta.url), "utf8");
+  const migration = fs.readFileSync(
+    new URL("../supabase/migrations/007_permanent_delete_archived_property.sql", import.meta.url), "utf8");
+  const quick = fs.readFileSync(
+    new URL("../components/admin/PropertyQuickActions.tsx", import.meta.url), "utf8");
+
+  // UI must demand two separate, explicit user actions.
+  assert.match(button, /window\.confirm\(/);
+  assert.match(button, /window\.prompt\(/);
+  assert.match(button, /typed !== property\.id/);
+  assert.match(button, /property\.status !== 'archived'/);
+  assert.match(button, /!property\.hidden/);
+
+  // UI role is convenience only; the server and SQL function both enforce it.
+  assert.match(quick, /canDeletePermanently/);
+  assert.match(gate, /member\?\.role !== 'super_admin'/);
+  assert.match(api, /authorizePermanentDeletion\(request\)/);
+  assert.match(api, /reference !== id/);
+  assert.match(api, /phrase !== CONFIRM_PHRASE/);
+  assert.match(api, /property\.status !== 'archived'/);
+  assert.match(api, /preflightPropertyPhotos\(service, id, url\)/);
+
+  // Backend delete must be transactional, with pending photo cleanup persisted.
+  assert.match(migration, /security definer/);
+  assert.match(migration, /role = 'super_admin'/);
+  assert.match(migration, /p_confirmed_reference is distinct from p_property_id/);
+  assert.match(migration, /where id = p_property_id\s+for update/i);
+  assert.match(migration, /delete from public\.property_photos/);
+  assert.match(migration, /delete from public\.properties/);
+  assert.match(migration, /property_permanent_deletion_jobs/);
+  assert.match(migration, /revoke all on function/);
+
+  // Only server code can use the service key; never export it to the frontend.
+  assert.match(gate, /process\.env\.SUPABASE_SERVICE_ROLE_KEY/);
+  assert.doesNotMatch(button + quick, /SERVICE_ROLE_KEY/);
+});
