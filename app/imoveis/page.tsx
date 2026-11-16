@@ -11,8 +11,8 @@ import {
 } from "@/lib/queries";
 import { parsePropertyFilters } from "@/lib/filters";
 import { resolveLondonLocation, resolvePropertyPostcodes } from "@/lib/nearby-service";
-import { rankNearbyProperties, rankTextNearby } from "@/lib/nearby";
-import type { NearbyEntry } from "@/lib/nearby";
+import { selectAreaAlternatives } from "@/lib/nearby";
+import type { AreaSearchResult } from "@/lib/nearby";
 
 export const dynamic = "force-dynamic";
 
@@ -51,25 +51,18 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
     ];
   });
 
-  let nearby: NearbyEntry[] = [];
-  let match: "geographic" | "text" | "none" = "none";
-  let resolvedLabel = near;
-  let located = 0;
+  let result: AreaSearchResult = {
+    kind: "empty", entries: [], radiusKm: null, located: 0,
+  };
 
   if (!unavailable && near) {
-    const origin = await resolveLondonLocation(near);
-    if (origin) {
-      const coordinates = await resolvePropertyPostcodes(properties.map(p => p.postcode));
-      const ranked = rankNearbyProperties(properties, origin.point, coordinates, undefined, 48);
-      nearby = ranked.entries;
-      located = ranked.located;
-      resolvedLabel = origin.label;
-      match = located ? "geographic" : "text";
-      if (!located) nearby = rankTextNearby(properties, near);
-    } else {
-      nearby = rankTextNearby(properties, near);
-      match = "text";
-    }
+    const location = await resolveLondonLocation(near);
+    const coordinates = location
+      ? await resolvePropertyPostcodes(properties.map(p => p.postcode))
+      : new Map();
+    result = selectAreaAlternatives(
+      properties, near, location?.point ?? null, coordinates, 12,
+    );
   }
 
   return (
@@ -83,12 +76,26 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
         <section className="mb-6 rounded-2xl border border-orange-200 bg-orange-50 p-4"
           aria-live="polite">
           <h2 className="text-lg font-semibold text-ink">
-            {t("Imóveis próximos de")} {resolvedLabel}
+            {result.kind === "exact"
+              ? <>{t("Encontramos imóveis na região solicitada:")} {near}</>
+              : result.kind === "nearby"
+                ? <>{t("Não encontramos imóveis no local solicitado:")} {near}</>
+                : result.kind === "distant"
+                  ? <>{t("Não encontramos imóveis próximos de")} {near}</>
+                  : result.kind === "text"
+                    ? <>{t("Encontramos correspondências para")} {near}</>
+                    : <>{t("Nenhum imóvel encontrado para")} {near}</>}
           </h2>
           <p className="mt-1 text-sm text-slate-soft">
-            {match === "geographic"
-              ? t("Ordenados por proximidade geográfica aproximada, não pelo tempo de viagem. Abra o Google Maps para comparar metrô, trem e ônibus.")
-              : t("Não foi possível calcular a distância deste local. Veja as correspondências de nome e abra o Google Maps para conferir a ligação de transporte.")}
+            {result.kind === "nearby"
+              ? <>{t("Estas são as opções reais disponíveis nos arredores, até")} {result.radiusKm} {t("km em linha reta. Veja o trajeto de transporte público no Google Maps.")}</>
+              : result.kind === "exact"
+                ? t("Estas opções correspondem ao local que você procurou.")
+                : result.kind === "distant"
+                  ? t("Não temos opções nos arredores imediatos. Veja os imóveis mais próximos do catálogo, mesmo que sejam mais distantes.")
+                  : result.kind === "text"
+                    ? t("A estação ou região não pôde ser localizada no mapa. Estas são correspondências pelo nome, sem distância confirmada.")
+                    : t("Não encontramos opções que atendam aos filtros ou não foi possível localizar a região. Tente informar uma estação ou postcode completo.")}
           </p>
           <p className="mt-2 text-xs text-slate-soft">
             {t("A busca considera apenas anúncios disponíveis que atendem aos demais filtros.")}
@@ -103,14 +110,14 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
           )}
         </p>
       ) : near ? (
-        <NearbyPropertyGrid entries={nearby} near={near} />
+        <NearbyPropertyGrid entries={result.entries} near={near} />
       ) : (
         <PropertyGrid properties={properties} />
       )}
 
       {!unavailable && (
         <TrackSearch filters={{ ...filters, near: near || undefined }}
-          resultCount={near ? nearby.length : properties.length} />
+          resultCount={near ? result.entries.length : properties.length} />
       )}
     </div>
   );
