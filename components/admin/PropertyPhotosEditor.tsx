@@ -100,6 +100,43 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
     setFiles(selected);
   }
 
+
+  async function rankWithAi(): Promise<string> {
+    try {
+      const { data } = await adminSupabase.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) return 'A sessão expirou; a ordem das fotos foi mantida.';
+      const response = await fetch('/api/admin/imoveis/' + encodeURIComponent(propertyId) + '/ordenar-fotos', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token },
+        cache: 'no-store',
+      });
+      const result = await response.json().catch(() => ({})) as {
+        ordered?: number; skipped?: boolean; error?: string;
+      };
+      if (!response.ok) {
+        return result.error || 'A IA não conseguiu ordenar as fotos. A ordem original foi mantida.';
+      }
+      await reload();
+      return result.skipped
+        ? 'Apenas uma foto: não é necessário reorganizar.'
+        : 'IA concluiu a seleção automática da capa e a ordem de ' +
+          (result.ordered ?? 0) + ' fotografias.';
+    } catch {
+      return 'A análise por IA não foi concluída. As fotos enviadas foram preservadas.';
+    }
+  }
+
+  async function reorderExisting() {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    setNotice('Analisando fotos com a IA...');
+    const message = await rankWithAi();
+    setNotice(message);
+    setBusy(false);
+  }
+
   async function uploadPhotos() {
     if (busy || !confirmed || files.length === 0) return;
     setError('');
@@ -169,9 +206,11 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       }
       await reload();
       if (attached > 0) {
+        setNotice(attached + ' foto(s) vinculada(s). Analisando ordem visual...');
+        const aiMessage = await rankWithAi();
         setNotice(attached + ' foto(s) vinculada(s) ao imóvel ' + propertyId + '. ' +
-          (isPublic ? 'As fotos já podem aparecer no catálogo público.' :
-            'O imóvel continua oculto/inativo conforme o status atual.'));
+          (isPublic ? 'Fotos de imóveis publicados podem aparecer no catálogo. ' :
+            'O imóvel continua oculto/inativo. ') + aiMessage);
         setFiles([]);
         setConfirmed(false);
       }
@@ -244,8 +283,23 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
             className="mt-5 w-full rounded-lg bg-ink px-5 py-3 font-semibold text-white disabled:opacity-60">
             {busy ? 'Enviando fotografias...' : 'Adicionar fotos ao imóvel'}
           </button>
+          {photos.length >= 2 && (
+            <div className="mt-4">
+              <button type="button" onClick={() => void reorderExisting()}
+                disabled={loading || busy}
+                className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-ink disabled:opacity-60">
+                {busy ? 'Analisando fotos...' : 'Reorganizar fotos existentes com IA'}
+              </button>
+              <p className="mt-2 text-xs text-slate-soft">
+                A IA usa créditos de API por análise. O botão é útil para organizar fotos
+                já enviadas; não é necessário executar novamente a cada visita.
+              </p>
+            </div>
+          )}
           <p className="mt-3 text-xs text-slate-soft">
-            Nesta versão, o painel ainda não permite excluir ou reorganizar fotos.
+            Após enviar novas fotos, a IA tentará escolher automaticamente a capa e
+            a sequência. Sem a chave de API configurada, a ordem original permanece.
+            Nesta versão, não é possível excluir fotos pelo painel.
           </p>
         </>
       )}
