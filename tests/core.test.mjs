@@ -491,3 +491,63 @@ test("permanent deletion is gated by two confirmations, super_admin and archival
   assert.match(gate, /process\.env\.SUPABASE_SERVICE_ROLE_KEY/);
   assert.doesNotMatch(button + quick, /SERVICE_ROLE_KEY/);
 });
+
+
+test("location search shows exact area when available, otherwise nearby real inventory", () => {
+  const api = load("lib/nearby.ts");
+  const origin = { latitude: 51.427, longitude: -0.167 };
+  const base = (id, station, postcode) => ({
+    id, type: "Single Room", postcode, nearest_station: station,
+    title: "Room " + id, region: null, photos: [],
+  });
+  const exact = base("exact", "Tooting Broadway Underground Station", "SW17 0AA");
+  const close = base("close", "Colliers Wood", "SW19 2AA");
+  const moderate = base("moderate", "Tooting Bec", "SW17 8AA");
+  const far = base("far", "Wembley", "HA9 0AA");
+  const locations = new Map([
+    ["SW170AA", { latitude: 51.428, longitude: -0.167 }],
+    ["SW192AA", { latitude: 51.429, longitude: -0.16 }],
+    ["SW178AA", { latitude: 51.438, longitude: -0.162 }],
+    ["HA90AA", { latitude: 51.557, longitude: -0.28 }],
+  ]);
+
+  const first = api.selectAreaAlternatives(
+    [far, moderate, exact, close], "Tooting Broadway", origin, locations, 10);
+  assert.equal(first.kind, "exact");
+  assert.deepEqual(Array.from(first.entries, entry => entry.property.id), ["exact"]);
+
+  const second = api.selectAreaAlternatives(
+    [far, moderate, close], "Tooting Broadway", origin, locations, 10);
+  assert.equal(second.kind, "nearby");
+  assert.ok(second.radiusKm <= 3);
+  assert.deepEqual(Array.from(second.entries, entry => entry.property.id),
+    ["close", "moderate"]);
+  assert.ok(second.entries[0].distanceKm < second.entries[1].distanceKm);
+
+  const textFallback = api.selectAreaAlternatives(
+    [far, moderate, close], "Colliers Wood", null, new Map(), 10);
+  assert.equal(textFallback.kind, "exact");
+  assert.equal(textFallback.entries[0].property.id, "close");
+
+  const missing = api.selectAreaAlternatives(
+    [far, moderate, close], "Tooting Broadway", null, new Map(), 10);
+  assert.equal(missing.kind, "unresolved");
+  assert.equal(missing.entries.length, 0);
+
+  const empty = api.selectAreaAlternatives([], "Tooting Broadway", origin, locations, 10);
+  assert.equal(empty.kind, "empty");
+  assert.equal(empty.entries.length, 0);
+});
+
+test("search links preserve type/budget and Google Maps opens public transit", () => {
+  const page = fs.readFileSync(new URL("../app/imoveis/page.tsx", import.meta.url), "utf8");
+  const maps = fs.readFileSync(new URL("../components/NearbyPropertyGrid.tsx", import.meta.url), "utf8");
+  const search = fs.readFileSync(new URL("../components/QuickSearchForm.tsx", import.meta.url), "utf8");
+  assert.match(search, /name="near"/);
+  assert.match(page, /selectAreaAlternatives/);
+  assert.match(page, /region: undefined/);
+  assert.match(page, /getProperties\(/);
+  assert.match(maps, /travelmode: 'transit'/);
+  assert.match(maps, /www\.google\.com\/maps\/dir/);
+  assert.doesNotMatch(page + maps, /service_role/i);
+});
