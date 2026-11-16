@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { adminSupabase } from '@/lib/supabase-admin';
 import { isTrustedPropertyPhotoUrl } from '@/lib/photo-url';
+import { rankPhotosFree } from '@/lib/photo-rank-free';
 
 type Photo = {
   id: string;
@@ -116,29 +117,56 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
   }
 
 
-  async function rankWithAi(): Promise<string> {
+  // Sem API paga: comparação de características fotográficas diretamente
+  // no navegador. Não tenta reconhecer tipos de cômodo nem analisar o imóvel.
+  async function rankFree(): Promise<string> {
     try {
-      const { data } = await adminSupabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) return 'A sessão expirou; a ordem das fotos foi mantida.';
-      const response = await fetch('/api/admin/imoveis/' + encodeURIComponent(propertyId) + '/ordenar-fotos', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + token },
-        cache: 'no-store',
-      });
-      const result = await response.json().catch(() => ({})) as {
-        ordered?: number; skipped?: boolean; error?: string;
-      };
-      if (!response.ok) {
-        return result.error || 'A IA não conseguiu ordenar as fotos. A ordem original foi mantida.';
+      const { data: identity } = await adminSupabase.auth.getUser();
+      if (!identity.user) return 'A sessão expirou. Entre novamente no painel.';
+      const { data: member } = await adminSupabase.from('admin_users')
+        .select('role').eq('id', identity.user.id).eq('active', true).maybeSingle();
+      if (!member || !['super_admin','manager'].includes(member.role)) {
+        return 'Seu perfil não permite reorganizar fotografias.';
+      }
+      // Carrega de novo porque fotos recém enviadas podem não estar no estado React.
+      const { data, error: queryError } = await adminSupabase.from('property_photos')
+        .select('id,url,sort_order').eq('property_id', propertyId)
+        .order('sort_order', { ascending: true }).order('created_at', { ascending: true });
+      if (queryError) return 'Erro ao consultar fotos; a ordem não foi modificada.';
+      const current = (data ?? []) as Photo[];
+      if (current.length < 2) return 'Não é necessário organizar uma galeria com menos de 2 fotos.';
+      if (current.length > 30) {
+        return 'Há mais de 30 fotos neste imóvel. A seleção automática gratuita está limitada a 30 por imóvel.';
+      }
+      if (!current.every(photo => isTrustedPropertyPhotoUrl(photo.url))) {
+        return 'Existem fotos com URLs não reconhecidas. Não alteramos a ordem.';
+      }
+      const result = await rankPhotosFree(current.map(photo => ({
+        id: photo.id, source: photo.url,
+      })));
+      if (result.analyzed < 2) {
+        return 'Não foi possível analisar fotos suficientes (rede ou CORS). A ordem foi mantida.';
+      }
+      if (current.every((photo, index) => photo.id === result.order[index])) {
+        await reload();
+        return 'A sequência já está adequada aos critérios gratuitos de qualidade.';
+      }
+      // Nunca altera status, preço ou conteúdo dos arquivos. Somente sort_order.
+      // Se a atualização falhar no meio, recarrega a lista e informa o problema.
+      for (const [index, photoId] of result.order.entries()) {
+        const { error: writeError } = await adminSupabase.from('property_photos')
+          .update({ sort_order: index }).eq('id', photoId).eq('property_id', propertyId);
+        if (writeError) {
+          await reload();
+          return 'Não foi possível concluir a reorganização. Confira as permissões e a ordem atual.';
+        }
       }
       await reload();
-      return result.skipped
-        ? 'Apenas uma foto: não é necessário reorganizar.'
-        : 'IA concluiu a seleção automática da capa e a ordem de ' +
-          (result.ordered ?? 0) + ' fotografias.';
+      return 'Capa e ordem ajustadas sem API paga: ' + result.analyzed +
+        ' fotografias analisadas.' +
+        (result.skipped ? ' ' + result.skipped + ' imagens ficaram no fim por não poderem ser analisadas.' : '');
     } catch {
-      return 'A análise por IA não foi concluída. As fotos enviadas foram preservadas.';
+      return 'Falha ao analisar imagens localmente. Confira a conexão e tente novamente.';
     }
   }
 
@@ -146,8 +174,8 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
     if (busy) return;
     setBusy(true);
     setError('');
-    setNotice('Analisando fotos com a IA...');
-    const message = await rankWithAi();
+    setNotice('Analisando nitidez, iluminação e composição, sem API paga...');
+    const message = await rankFree();
     setNotice(message);
     setBusy(false);
   }
@@ -221,11 +249,11 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       }
       await reload();
       if (attached > 0) {
-        setNotice(attached + ' foto(s) vinculada(s). Analisando ordem visual...');
-        const aiMessage = await rankWithAi();
+        setNotice(attached + ' foto(s) vinculada(s). Analisando qualidade visual sem API paga...');
+        const resultMessage = await rankFree();
         setNotice(attached + ' foto(s) vinculada(s) ao imóvel ' + propertyId + '. ' +
           (isPublic ? 'Fotos de imóveis publicados podem aparecer no catálogo. ' :
-            'O imóvel continua oculto/inativo. ') + aiMessage);
+            'O imóvel continua oculto/inativo. ') + resultMessage);
         setFiles([]);
         setConfirmed(false);
       }
@@ -317,17 +345,18 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
               <button type="button" onClick={() => void reorderExisting()}
                 disabled={loading || busy}
                 className="rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-ink disabled:opacity-60">
-                {busy ? 'Analisando fotos...' : 'Reorganizar fotos existentes com IA'}
+                {busy ? 'Analisando fotos...' : 'Reorganizar fotos automaticamente (grátis)'}
               </button>
               <p className="mt-2 text-xs text-slate-soft">
-                A IA usa créditos de API por análise. O botão é útil para organizar fotos
-                já enviadas; não é necessário executar novamente a cada visita.
+                Esta seleção é gratuita e realizada no navegador. Compara brilho,
+                nitidez e diversidade visual. Não identifica os cômodos.
               </p>
             </div>
           )}
           <p className="mt-3 text-xs text-slate-soft">
-            Após enviar novas fotos, a IA tentará escolher automaticamente a capa e
-            a sequência. Sem a chave de API configurada, a ordem original permanece.
+            Após enviar novas fotos, a classificação visual gratuita tentará escolher
+            automaticamente a capa e a sequência; nenhuma chave de API é necessária.
+            Não reconhece tipos de ambiente, portanto confira a capa escolhida.
             Nesta versão, não é possível excluir fotos pelo painel.
           </p>
         </>
