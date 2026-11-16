@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { adminSupabase } from '@/lib/supabase-admin';
 import { isTrustedPropertyPhotoUrl } from '@/lib/photo-url';
 
@@ -28,6 +28,14 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const folderInputRef = useRef<HTMLInputElement>(null);
+
+  // A escolha de pasta exige autorização explícita no navegador.
+  // O site não pode acessar sozinho as pastas do computador.
+  useEffect(() => {
+    folderInputRef.current?.setAttribute('webkitdirectory', '');
+    folderInputRef.current?.setAttribute('directory', '');
+  }, []);
 
   const reload = useCallback(async () => {
     const { data, error: listError } = await adminSupabase
@@ -83,7 +91,14 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
     setNotice('');
     setError('');
     setConfirmed(false);
-    const selected = Array.from(event.target.files ?? []);
+    const selected = Array.from(event.target.files ?? []).filter(
+      (file) => EXTENSIONS[file.type] !== undefined
+    );
+    if (selected.length === 0) {
+      setError('Nenhuma fotografia JPG, PNG ou WEBP encontrada na seleção.');
+      setFiles([]);
+      return;
+    }
     if (selected.length > MAX_FILES) {
       setError('Selecione no máximo ' + MAX_FILES + ' fotos por envio.');
       setFiles([]);
@@ -255,6 +270,20 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
               accept="image/jpeg,image/png,image/webp" multiple
               disabled={busy} onChange={chooseFiles}
               className="mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm" />
+            <div className="mt-4">
+              <label htmlFor="property-photo-folder" className="block text-sm font-medium text-ink">
+                Ou selecionar uma pasta de fotos deste imóvel
+              </label>
+              <input ref={folderInputRef} id="property-photo-folder" type="file"
+                accept="image/jpeg,image/png,image/webp" multiple disabled={busy}
+                onChange={chooseFiles}
+                className="mt-2 block w-full rounded-lg border border-slate-300 bg-white p-3 text-sm" />
+              <p className="mt-2 text-xs text-slate-soft">
+                Escolha a pasta correspondente à unidade deste cadastro. O navegador só
+                poderá ler a pasta que você selecionar. Arquivos que não sejam imagens
+                são ignorados; confirme a correspondência antes de enviar.
+              </p>
+            </div>
             <p className="mt-2 text-xs text-slate-soft">
               Até 30 arquivos por vez; JPG, PNG ou WEBP; máximo de 8 MB por foto.
               Fotos entram diretamente no catálogo se este imóvel já estiver publicado.
