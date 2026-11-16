@@ -50,6 +50,8 @@ export default function AdminImoveisPage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [canManage, setCanManage] = useState(false);
+  const [canDeletePermanently, setCanDeletePermanently] = useState(false);
+  const [cleaning, setCleaning] = useState(false);
 
   const load = useCallback(async (reset: boolean, currentCount = 0) => {
     reset ? setLoading(true) : setLoadingMore(true);
@@ -69,6 +71,7 @@ export default function AdminImoveisPage() {
         return;
       }
       setCanManage(['super_admin', 'manager'].includes(member.role));
+      setCanDeletePermanently(member.role === 'super_admin');
       // Keep archived records available for recovery. RLS decides which rows
       // the signed-in user is allowed to read.
       const start = reset ? 0 : currentCount;
@@ -112,6 +115,32 @@ export default function AdminImoveisPage() {
     void load(true);
   }
 
+  async function cleanPendingPhotos() {
+    if (cleaning) return;
+    setCleaning(true);
+    setError('');
+    try {
+      const { data, error: sessionError } = await adminSupabase.auth.getSession();
+      if (sessionError || !data.session?.access_token)
+        throw new Error('Sua sessão expirou. Entre novamente.');
+      const response = await fetch('/api/admin/imoveis/limpar-exclusoes', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + data.session.access_token },
+        cache: 'no-store',
+      });
+      const result = await response.json() as {
+        examined?: number; complete?: number; pending?: number; error?: string;
+      };
+      if (!response.ok) throw new Error(result.error || 'Não foi possível concluir a limpeza.');
+      setNotice('Limpeza verificada: ' + (result.complete ?? 0) +
+        ' concluída(s), ' + (result.pending ?? 0) + ' pendente(s) nesta execução.');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Falha ao verificar limpeza.');
+    } finally {
+      setCleaning(false);
+    }
+  }
+
   const options: Array<{ value: Filter; label: string }> = [
     { value: 'ativos', label: 'Todos, exceto arquivados' },
     { value: 'publicados', label: 'Publicados' },
@@ -133,12 +162,20 @@ export default function AdminImoveisPage() {
             A exclusão arquiva o imóvel e permite recuperar todas as informações e fotos.
           </p>
         </div>
-        {canManage && (
-          <Link href="/admin/imoveis/novo"
-            className="inline-flex min-h-11 items-center rounded-xl bg-ink px-5 py-3 text-sm font-semibold text-white">
-            + Cadastrar imóvel
-          </Link>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {canDeletePermanently && (
+            <button type="button" disabled={cleaning} onClick={() => void cleanPendingPhotos()}
+              className="min-h-11 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-ink disabled:opacity-50">
+              {cleaning ? 'Conferindo limpeza...' : 'Concluir limpeza pendente'}
+            </button>
+          )}
+          {canManage && (
+            <Link href="/admin/imoveis/novo"
+              className="inline-flex min-h-11 items-center rounded-xl bg-ink px-5 py-3 text-sm font-semibold text-white">
+              + Cadastrar imóvel
+            </Link>
+          )}
+        </div>
       </div>
 
       {notice && (
@@ -221,7 +258,9 @@ export default function AdminImoveisPage() {
                       className="mt-4 inline-flex min-h-10 items-center rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-white">
                       Editar dados e fotos
                     </Link>
-                    <PropertyQuickActions property={property} onChanged={onChanged} />
+                    <PropertyQuickActions property={property}
+                      canDeletePermanently={canDeletePermanently}
+                      onChanged={onChanged} />
                   </>
                 )}
               </article>
@@ -241,8 +280,9 @@ export default function AdminImoveisPage() {
       )}
 
       {!loading && <p className="mt-7 text-xs text-slate-soft">
-        Somente usuários autorizados podem alterar anúncios. Ações em registros já publicados
-        podem aparecer imediatamente para clientes; confirme disponibilidade e valores.
+        Somente usuários autorizados podem alterar anúncios. A exclusão definitiva só aparece
+        para o administrador principal, em imóveis arquivados, e exige duas confirmações.
+        Os arquivos podem precisar de limpeza adicional se a conexão com o Storage falhar.
       </p>}
     </section>
   );
