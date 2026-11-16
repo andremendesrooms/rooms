@@ -41,7 +41,9 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
     getAvailableRegions(),
     // Consultar um conjunto maior quando a pessoa pede proximidade. A busca
     // continua limitada à VIEW pública, sem acesso às tabelas administrativas.
-    getProperties(filters, near ? 200 : 48),
+    // Searching by a specific station/place must NOT filter away nearby
+    // neighbourhoods using the separate exact-region dropdown.
+    getProperties(near ? { ...filters, region: undefined } : filters, near ? 200 : 48),
   ]).catch(() => {
     unavailable = true;
     return [[], [], []] as [
@@ -116,7 +118,7 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
       )}
 
       {!unavailable && (
-        <TrackSearch filters={{ ...filters, near: near || undefined }}
+        <TrackSearch filters={{ ...filters, region: near ? undefined : filters.region, near: near || undefined }}
           resultCount={near ? result.entries.length : properties.length} />
       )}
     </div>
