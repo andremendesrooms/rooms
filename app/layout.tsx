@@ -23,6 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const translate = await t();
   return {
     title: `André Mendes Rooms — ${translate("Imóveis em Londres")}`,
+    icons: { icon: "/brand/andre-mendes-icon.svg" },
     description: translate(
       "Catálogo de imóveis em Londres para quem quer mudar ou está planejando chegar, com informações claras e contato direto.",
     ),
