@@ -21,6 +21,7 @@ create table if not exists public.property_permanent_deletion_jobs (
 
 alter table public.property_permanent_deletion_jobs enable row level security;
 revoke all on table public.property_permanent_deletion_jobs from public, anon, authenticated;
+grant select, insert, update, delete on table public.property_permanent_deletion_jobs to service_role;
 -- Nenhuma policy é criada: somente serviço do servidor pode ler/remover jobs.
 
 create or replace function public.admin_permanently_delete_archived_property(
