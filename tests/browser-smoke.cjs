@@ -37,6 +37,7 @@ const assert = require("node:assert/strict");
     es: "Inmuebles disponibles",
     it: "Immobili disponibili",
     fr: "Logements disponibles",
+    pl: "Dostępne nieruchomości",
   };
   for (const [locale, title] of Object.entries(locales)) {
     await page.goto(
@@ -64,6 +65,23 @@ const assert = require("node:assert/strict");
       "home, catalogue, persistence and preserved filters OK",
     );
   }
+  await page.goto(
+    base + "/imoveis?occupancy=couple&maxPrice=1200&priceFrequency=month",
+  );
+  await page.getByRole("button", { name: "English", exact: true }).click();
+  await page
+    .getByRole("heading", { name: "Available homes", exact: true })
+    .waitFor();
+  assert.ok(page.url().includes("priceFrequency=month"));
+  assert.equal(
+    await page
+      .getByRole("button", { name: "English", exact: true })
+      .getAttribute("aria-pressed"),
+    "true",
+  );
+  await page.reload();
+  assert.equal(await page.getByLabel("Language / Idioma").inputValue(), "en");
+  console.log("English shortcut preserves filters and language preference");
   await page.goto(base + "/admin/login");
   assert.equal(await page.locator("html").getAttribute("lang"), "pt-BR");
   assert.equal(await page.getByLabel("Language / Idioma").count(), 0);
@@ -79,6 +97,12 @@ const assert = require("node:assert/strict");
       () => document.documentElement.scrollWidth > window.innerWidth,
     );
     assert.equal(overflow, false, `overflow at ${width}`);
+    assert.ok(
+      await page
+        .getByRole("button", { name: "English", exact: true })
+        .isVisible(),
+    );
+    assert.ok(await page.getByLabel("Language / Idioma").isVisible());
     if (process.env.SCREENSHOT_DIR)
       await page.screenshot({
         path: `${process.env.SCREENSHOT_DIR}/home-${width}.png`,

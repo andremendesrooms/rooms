@@ -20,9 +20,9 @@ Captação solicita tipo, região, ocupantes, orçamento/período, data e resid�
 
 **Pendências externas:** logo oficial em arquivo binário não localizada; mantida a marca textual conforme AGENTS.md. Não há configuração Supabase/WhatsApp ou catálogo real no ambiente. A foto do hero utiliza o primeiro anúncio com fotografia; sem dados reais mostra um bloco tipográfico, sem imagem ou anúncio fictício.
 
-## P2 — cinco idiomas
+## P2 — seis idiomas
 
-Português, inglês, espanhol, italiano e francês no conteúdo editorial da home, navegação, filtros, cartões, detalhes, formulário, estados públicos de erro/indisponibilidade e metadata. Seletor visível em mobile e desktop, persistência por cookie HttpOnly/SameSite, atualização mantendo path/query. O admin permanece em português e não apresenta seletor. Dados originais do banco não passam por tradução automática. A escolha inicial é português; a preferência permanece ao voltar do admin para o catálogo.
+Português, inglês, espanhol, italiano, francês e polonês no conteúdo editorial da home, navegação, filtros, cartões, detalhes, formulário, estados públicos de erro/indisponibilidade e metadata. Seletor visível em mobile e desktop, persistência por cookie HttpOnly/SameSite, atualização mantendo path/query. O admin permanece em português e não apresenta seletor. Dados originais do banco não passam por tradução automática. A escolha inicial é português; a preferência permanece ao voltar do admin para o catálogo.
 
 ## P3 — administração
 
@@ -36,10 +36,10 @@ A organização gratuita preserva a primeira foto como capa, mantém as etiqueta
 
 - `npm ci`: passou com cache no workspace.
 - `npm run typecheck` / `npx tsc --noEmit`: passaram.
-- `npm test`: 14 testes, cobrindo regras de publicação, proteção de mídia, WhatsApp contextual, consultas públicas, filtros, capa/ambientes, traduções e renderização de cartões em cinco idiomas. Mocks e fixtures somente em memória; nenhuma gravação externa.
+- `npm test`: 15 testes, cobrindo regras de publicação, proteção de mídia, WhatsApp contextual, consultas públicas, filtros, capa/ambientes, traduções e renderização de cartões em seis idiomas. Mocks e fixtures somente em memória; nenhuma gravação externa.
 - `npm run build`: passou sem credenciais reais. Next.js informa depreciação do suporte a React 18.
 - `npm audit --omit=dev`: zero vulnerabilidades reportadas nas dependências de produção.
-- Navegador Chromium/Playwright local: cinco idiomas na home e catálogo, persistência após reload, preservação de query/preço/período, admin em português, estado sem configuração e redirecionamento sem sessão. Layouts 320, 375, 768 e 1440 px sem overflow horizontal ou erros de execução.
+- Navegador Chromium/Playwright local: seis idiomas na home e catálogo, persistência após reload, preservação de query/preço/período, admin em português, estado sem configuração e redirecionamento sem sessão. Layouts 320, 375, 768 e 1440 px sem overflow horizontal ou erros de execução.
 
 Os testes de banco foram substituídos por mocks nesta entrega; isso **não** valida RLS nem dados comerciais reais.
 
@@ -61,6 +61,14 @@ Os testes de banco foram substituídos por mocks nesta entrega; isso **não** va
 - [ ] Confirmar que o enum de status do banco aceita `rented` e que a migration 006 está disponível antes de salvar etiquetas; qualquer mudança de schema precisa de revisão própria.
 - [ ] Verificar preço, período, depósito, ocupação, data, fotos e condições de cada anúncio real com a fonte comercial.
 - [ ] Abrir WhatsApp e confirmar destinatário/mensagem em cartões, detalhes e formulário; testar consentimento obrigatório.
-- [ ] Fazer revisão editorial nativa dos cinco idiomas e verificar fotos reais em desktop/mobile.
+- [ ] Fazer revisão editorial nativa dos seis idiomas e verificar fotos reais em desktop/mobile.
 - [ ] Revisar PR e obter CI verde para `painel-admin`; manter `main` preservada.
 - [ ] Somente após autorização do proprietário: revisar configuração Netlify, variáveis no build, domínio e procedimento de retorno à versão anterior. Nenhum deploy foi iniciado por esta entrega. O guard de build Netlify pula a branch `codex/issue-1-lancamento`, inclusive previews automáticos.
+
+## Ampliação de público e polonês
+
+A pedido do proprietário, a comunicação passou a acolher todas as nacionalidades e tanto residentes em Londres quanto pessoas que planejam chegar do exterior. Home, FAQ, rodapé, metadata e instruções do projeto refletem essa orientação, sem prometer disponibilidade ou reserva antecipada. O formulário mantém a pergunta sobre residência em Londres e a data de mudança para contextualizar o atendimento.
+
+O cabeçalho apresenta botão direto **English** e seletor **Escolha outro idioma** em destaque, também no mobile. Polonês (`pl`, Polski) integra o catálogo completo, o cookie persistente e as mensagens de WhatsApp. As mensagens de contato agora usam o idioma selecionado e preservam referência e título originais do imóvel. Nenhuma campanha paga foi criada ou publicada.
+
+Arquivos desta ampliação: `AGENTS.md`, `README.md`, home/layout, cabeçalho/rodapé, seletor de idioma, formulário/WhatsApp, formatação de links, catálogo de traduções, testes e este relatório. Validação: TypeScript, build, 15 testes e smoke de navegador com seis idiomas, atalho English, persistência de filtros e larguras 320–1440 px. As pendências de logo e homologação Supabase permanecem.

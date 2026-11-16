@@ -20,7 +20,6 @@ export default async function Header() {
             LONDON ROOMS
           </span>
         </Link>
-        <LanguageSelector language={await getLanguage()} />
         <nav
           aria-label={t("Navegação principal")}
           className="flex shrink-0 items-center gap-4"
@@ -37,6 +36,7 @@ export default async function Header() {
           </Link>
         </nav>
       </div>
+      <LanguageSelector language={await getLanguage()} />
     </header>
   );
 }

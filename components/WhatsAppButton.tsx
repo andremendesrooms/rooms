@@ -16,7 +16,7 @@ export default function WhatsAppButton({
   children: React.ReactNode;
 }) {
   const t = useTranslation();
-  const href = whatsappLink(propertyId, title);
+  const href = whatsappLink(propertyId, title, t);
   if (!href)
     return (
       <span role="status" className="text-sm text-slate-soft">

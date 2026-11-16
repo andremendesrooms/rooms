@@ -282,18 +282,18 @@ test("catalogue outage is not silently reported as zero available properties", a
   await assert.rejects(api.getProperties(), /indisponível/);
   await assert.rejects(api.getPropertyById("x"), /indisponível/);
 });
-test("every dictionary entry supplies five nonempty translations", () => {
+test("every dictionary entry supplies six nonempty translations", () => {
   const catalog = JSON.parse(
     fs.readFileSync(new URL("../lib/translations.json", import.meta.url)),
   );
   assert.ok(Object.keys(catalog).length > 100);
   for (const [key, row] of Object.entries(catalog))
-    for (const locale of ["pt", "en", "es", "it", "fr"])
+    for (const locale of ["pt", "en", "es", "it", "fr", "pl"])
       assert.ok(row[locale]?.trim(), `${key}: ${locale}`);
   const { parseLanguage, translator } = load("lib/i18n.ts", {
     "./translations.json": catalog,
   });
-  for (const locale of ["pt", "en", "es", "it", "fr"]) {
+  for (const locale of ["pt", "en", "es", "it", "fr", "pl"]) {
     assert.equal(parseLanguage(locale), locale);
     assert.ok(translator(locale)("Imóveis disponíveis"));
     assert.equal(
@@ -335,7 +335,7 @@ test("invalid URL dates, nonfinite prices and repeated filters are ignored", () 
 });
 test("language endpoint enforces same host, valid locale, and secure cookie settings", async () => {
   const { POST } = load("app/api/language/route.ts", {
-    "@/lib/i18n": { languages: ["pt", "en", "es", "it", "fr"] },
+    "@/lib/i18n": { languages: ["pt", "en", "es", "it", "fr", "pl"] },
   });
   const request = (origin, language) => ({
     headers: new Headers({
@@ -353,7 +353,7 @@ test("language endpoint enforces same host, valid locale, and secure cookie sett
   assert.match(response.headers.get("set-cookie"), /HttpOnly/i);
   assert.match(response.headers.get("set-cookie"), /SameSite=lax/i);
 });
-test("property cards render translated controls but preserve original database copy in all five languages", async () => {
+test("property cards render translated controls but preserve original database copy in all six languages", async () => {
   const React = require("react");
   const { renderToStaticMarkup } = require("react-dom/server");
   const catalog = JSON.parse(
@@ -363,7 +363,7 @@ test("property cards render translated controls but preserve original database c
     "./translations.json": catalog,
   });
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "447700900123";
-  for (const language of ["pt", "en", "es", "it", "fr"]) {
+  for (const language of ["pt", "en", "es", "it", "fr", "pl"]) {
     const t = translator(language);
     const { default: WhatsApp } = load("components/WhatsAppButton.tsx", {
       "./LanguageProvider": { useTranslation: () => t },
@@ -428,4 +428,21 @@ test("Netlify skips review-branch deploys without changing other branches", () =
       }).status,
       status,
     );
+});
+
+test("Polish outreach keeps the original property reference and title", () => {
+  const catalog = JSON.parse(
+    fs.readFileSync(new URL("../lib/translations.json", import.meta.url)),
+  );
+  const { translator } = load("lib/i18n.ts", {
+    "./translations.json": catalog,
+  });
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "447700900123";
+  const url = new URL(
+    format.whatsappLink("property-123", "Original title $&", translator("pl")),
+  );
+  assert.ok(url.searchParams.get("text").startsWith("Dzień dobry"));
+  assert.ok(
+    url.searchParams.get("text").includes("property-123 (Original title $&)"),
+  );
 });

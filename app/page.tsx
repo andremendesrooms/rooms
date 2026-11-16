@@ -41,7 +41,7 @@ export default async function HomePage() {
             </h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/75">
               {t(
-                "Já mora em Londres e quer mudar? Encontre um espaço para a sua próxima fase, com atendimento em português e condições claras.",
+                "Já mora em Londres ou está planejando chegar? Encontre seu próximo imóvel, com informações claras e contato direto.",
               )}
             </p>
             <Link
@@ -161,7 +161,7 @@ export default async function HomePage() {
                 "Explore as fotografias de cada imóvel e confirme os detalhes na visita.",
               ],
               [
-                "Atendimento em português",
+                "Atendimento próximo",
                 "Conte sua rotina, sua região preferida e o que precisa no novo espaço.",
               ],
               [
@@ -197,7 +197,7 @@ export default async function HomePage() {
           {[
             [
               "Já preciso morar em Londres?",
-              "Nosso foco é quem já mora em Londres e quer mudar de imóvel. Se você ainda está fora do Reino Unido, fale conosco sobre sua situação.",
+              "Não. Atendemos quem já mora em Londres e quem está planejando chegar, de qualquer nacionalidade. Conte sua situação e a data prevista para entendermos sua procura.",
             ],
             [
               "As contas estão incluídas?",

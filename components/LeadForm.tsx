@@ -18,12 +18,18 @@ export default function LeadForm() {
           return;
         }
         const data = new FormData(e.currentTarget);
+        const fieldLabels: Record<string, string> = {
+          "Máximo em GBP": "Orçamento máximo (£)",
+          "Período do orçamento": "Período",
+          Data: "Data da mudança",
+          "Já mora em Londres": "Já mora em Londres?",
+        };
         const message = Array.from(data.entries())
           .filter(([key]) => key !== "consent")
-          .map(([key, value]) => `${key}: ${value}`)
+          .map(([key, value]) => `${t(fieldLabels[key] || key)}: ${value}`)
           .join("\n");
         window.open(
-          `https://wa.me/${number}?text=${encodeURIComponent("Olá! Estou procurando um imóvel.\n" + message)}`,
+          `https://wa.me/${number}?text=${encodeURIComponent(t("Olá! Estou procurando um imóvel.") + "\n" + message)}`,
           "_blank",
           "noopener,noreferrer",
         );

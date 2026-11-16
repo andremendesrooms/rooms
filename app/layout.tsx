@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: `André Mendes Rooms — ${translate("Imóveis em Londres")}`,
     description: translate(
-      "Catálogo de imóveis em Londres para quem já mora na cidade e quer mudar, com atendimento em português.",
+      "Catálogo de imóveis em Londres para quem quer mudar ou está planejando chegar, com informações claras e contato direto.",
     ),
   };
 }

@@ -1,6 +1,6 @@
 # André Mendes Rooms | London
 
-Catálogo comercial de imóveis em Londres, com foco em brasileiros que já vivem na cidade e querem mudar. Next.js App Router, TypeScript, Tailwind e Supabase. Desenvolvimento em `painel-admin`; as alterações da issue #1 estão em branch própria para revisão.
+Catálogo comercial de imóveis em Londres, aberto a todas as nacionalidades, para quem já vive na cidade e quer mudar ou está planejando chegar. Next.js App Router, TypeScript, Tailwind e Supabase. Desenvolvimento em `painel-admin`; as alterações da issue #1 estão em branch própria para revisão.
 
 ## Desenvolvimento e validação
 
@@ -22,7 +22,7 @@ npm run build
 
 `npm test` usa o runner nativo do Node e o TypeScript já instalado: regras comerciais, consultas públicas com mocks, mídia, fotos, WhatsApp, traduções e renderização de cartões. Não acessa nem altera banco de dados.
 
-Para o smoke test do navegador, disponibilize Playwright e Chromium no ambiente, inicie o app local com `npm run build && npm start` e execute `npm run test:browser`. Playwright já está disponível no ambiente Codex usado nesta entrega; não foi adicionado como dependência do produto. `BROWSER_PATH`, `TEST_BASE_URL` e `SCREENSHOT_DIR` são opcionais. O smoke cobre os cinco idiomas, persistência, filtros, larguras 320/375/768/1440 e redirecionamento sem sessão. Execute contra uma instância local **sem credenciais reais**: esse smoke verifica também os estados de configuração ausente. Capturas ficam somente no diretório indicado.
+Para o smoke test do navegador, disponibilize Playwright e Chromium no ambiente, inicie o app local com `npm run build && npm start` e execute `npm run test:browser`. Playwright já está disponível no ambiente Codex usado nesta entrega; não foi adicionado como dependência do produto. `BROWSER_PATH`, `TEST_BASE_URL` e `SCREENSHOT_DIR` são opcionais. O smoke cobre os seis idiomas, persistência, filtros, larguras 320/375/768/1440 e redirecionamento sem sessão. Execute contra uma instância local **sem credenciais reais**: esse smoke verifica também os estados de configuração ausente. Capturas ficam somente no diretório indicado.
 
 GitHub Actions executa instalação reproduzível, TypeScript, testes e build nos pushes `codex/**` e PRs para `painel-admin`, sem secrets. O antigo comando `next lint`, removido do Next 16, foi retirado; não representa uma checagem que passava.
 
@@ -31,7 +31,7 @@ GitHub Actions executa instalação reproduzível, TypeScript, testes e build no
 - Home com busca, vitrine sem anúncios inventados, etapas de atendimento, diferenciais, perguntas frequentes e captação por WhatsApp mediante consentimento. Orçamento com período semanal/mensal explícito; o formulário não persiste dados no site.
 - Catálogo com filtros por tipo, ocupação, região, preço/período e data. URLs inválidas são normalizadas. Indisponibilidade do serviço é apresentada separadamente de catálogo vazio.
 - Detalhes e cartões com fotografia, valores, região/postcode, disponibilidade, ocupação e WhatsApp contextual. Sem número válido, o contato mostra indisponibilidade em vez de abrir um destinatário vazio.
-- Português padrão, inglês, espanhol, italiano e francês: seletor desktop/mobile, cookie persistente, metadata, navegação e controles públicos traduzidos. Títulos, descrições, tipos, regiões e condições fornecidos pelo banco permanecem no idioma original. O admin fica em português.
+- Português padrão, inglês, espanhol, italiano, francês e polonês: botão direto English e seletor destacado desktop/mobile, cookie persistente, metadata, navegação e controles públicos traduzidos. Títulos, descrições, tipos, regiões e condições fornecidos pelo banco permanecem no idioma original. O admin fica em português.
 - Marca textual temporária, laranja/grafite/branco. **Logo original binária ainda não disponível** no repositório ou no ambiente desta tarefa. Nenhuma logo substituta foi criada.
 - Admin com login, recuperação de senha, consulta, cadastro de rascunhos, edição, upload e ordenação de fotos; perfis ativos `manager`/`super_admin` para mutações. Controles para ocultar, marcar como alugado e publicar com confirmação comercial explícita. Validação `ok` e revisão de preço resolvida são necessárias para publicar; o painel não aprova validações automaticamente.
 - Fotos: ordenação gratuita no navegador, etiquetas manuais por ambiente, preservação da capa existente e de todos os originais. A heurística não reconhece cômodos com garantia. `room_group` depende da migration 006 existente; há fallback para schemas sem essa coluna.

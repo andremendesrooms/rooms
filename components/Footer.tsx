@@ -7,7 +7,7 @@ export default async function Footer() {
         <p className="font-mono font-semibold text-ink">ANDRÉ MENDES ROOMS</p>
         <p className="mt-2 max-w-md">
           {t(
-            "Aluguel de imóveis em Londres para brasileiros. Informações de disponibilidade e preço são atualizadas continuamente — em caso de dúvida, confirme diretamente pelo WhatsApp.",
+            "Imóveis em Londres para a sua próxima fase. Disponibilidade e preços podem mudar — confirme os detalhes diretamente pelo WhatsApp.",
           )}
         </p>
       </div>
