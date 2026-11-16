@@ -8,7 +8,7 @@
  * do usuário. Fotos remotas precisam permitir leitura CORS.
  */
 
-export type PhotoSource = { id: string; source: Blob | string };
+export type PhotoSource = { id: string; source: Blob | string; roomGroup?: string | null };
 
 type VisualFeatures = {
   id: string;
@@ -184,56 +184,109 @@ export type FreeRankResult = {
   order: string[];
   analyzed: number;
   skipped: number;
+  groups: number;
 };
 
 /**
- * Escolhe melhor qualidade estimada como capa, depois alterna fotos parecidas.
- * Uma foto ilegível fica no fim, preservando sua posição relativa. Se NENHUMA
- * foto for analisável, retorna a ordem existente (sem alegar classificação).
+ * Organiza a galeria em BLOCOS DE AMBIENTE, nunca alternando imagens
+ * parecidas com imagens diferentes. Labels informados pelo operador
+ * prevalecem sempre. Fotos sem label são agrupadas apenas por semelhança
+ * visual; isso não é reconhecimento de cômodos e pode falhar com ângulos
+ * muito diferentes. Não usa API externa.
  */
 export async function rankPhotosFree(items: PhotoSource[]): Promise<FreeRankResult> {
-  const evaluations: VisualFeatures[] = [];
+  const results: VisualFeatures[] = [];
   for (const item of items) {
     try {
-      evaluations.push(await analyze(item));
+      results.push(await analyze(item));
     } catch (error) {
-      console.warn('[photo-rank-free] Não foi possível analisar uma imagem', item.id, error);
+      console.warn('[photo-rank-free] Falha ao analisar', item.id, error);
     }
   }
-
-  if (!evaluations.length) {
-    return { order: items.map(item => item.id), analyzed: 0, skipped: items.length };
+  if (!results.length) {
+    return { order: items.map(item => item.id), analyzed: 0,
+      skipped: items.length, groups: 0 };
   }
 
-  const currentOrder = new Map(items.map((item, index) => [item.id, index]));
-  const pending = [...evaluations];
-  pending.sort((a, b) => b.quality - a.quality ||
-    (currentOrder.get(a.id) ?? 0) - (currentOrder.get(b.id) ?? 0));
-  const chosen: VisualFeatures[] = [pending.shift()!];
+  const orderById = new Map(items.map((item, index) => [item.id, index]));
+  const groupsById = new Map(items.map(item => [item.id, item.roomGroup?.trim() || null]));
+  const analyzed = new Map(results.map(photo => [photo.id, photo]));
+  const groups: Array<{ tag: string | null; photos: VisualFeatures[] }> = [];
 
-  while (pending.length) {
-    const previous = chosen[chosen.length - 1];
-    let bestIndex = 0;
-    let bestValue = -Infinity;
-    for (let i = 0; i < pending.length; i++) {
-      const candidate = pending[i];
-      const similarityToLast = resemblance(candidate, previous);
-      const similarityToChosen = Math.max(...chosen.map(p => resemblance(candidate, p)));
-      const value = candidate.quality -
-        0.27 * similarityToLast -
-        0.08 * similarityToChosen;
-      if (value > bestValue) {
-        bestIndex = i;
-        bestValue = value;
-      }
+  // Labels humanos agruparam todas as imagens do mesmo ambiente sem exceção.
+  const tagged = new Map<string, VisualFeatures[]>();
+  for (const photo of results) {
+    const group = groupsById.get(photo.id);
+    if (group) {
+      const list = tagged.get(group) || [];
+      list.push(photo);
+      tagged.set(group, list);
     }
-    chosen.push(pending.splice(bestIndex, 1)[0]);
   }
+  for (const [tag, photos] of tagged) groups.push({ tag, photos });
 
-  const recognized = new Set(chosen.map(item => item.id));
+  // Os demais são agrupados em comunidades de similaridade; o algoritmo
+  // ANTERIOR tinha penalidade por semelhança e, por isso, intercalava cômodos.
+  // Esta versão aproxima fotos parecidas, e mantém cada grupo contíguo.
+  const unknown = results.filter(photo => !groupsById.get(photo.id));
+  const parent = unknown.map((_, i) => i);
+  function find(i: number): number {
+    while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; }
+    return i;
+  }
+  function join(a: number, b: number) {
+    const aa = find(a), bb = find(b);
+    if (aa !== bb) parent[bb] = aa;
+  }
+  for (let i = 0; i < unknown.length; i++) {
+    for (let j = i + 1; j < unknown.length; j++) {
+      const similarity = resemblance(unknown[i], unknown[j]);
+      // Threshold conservador, não tenta "adivinhar" que dois ambientes
+      // diferentes são o mesmo apenas porque têm a mesma cor de paredes.
+      if (similarity >= 0.835) join(i, j);
+    }
+  }
+  const automatic = new Map<number, VisualFeatures[]>();
+  for (let i = 0; i < unknown.length; i++) {
+    const root = find(i);
+    const list = automatic.get(root) || [];
+    list.push(unknown[i]);
+    automatic.set(root, list);
+  }
+  for (const photos of automatic.values()) groups.push({ tag: null, photos });
+
+  function bestQuality(group: { tag: string | null; photos: VisualFeatures[] }) {
+    return Math.max(...group.photos.map(p => p.quality));
+  }
+  function groupPriority(group: { tag: string | null; photos: VisualFeatures[] }) {
+    const tag = (group.tag || '').toLowerCase();
+    // Banheiros e áreas técnicas não devem abrir o anúncio quando houver
+    // uma foto de quarto/sala adequada e corretamente etiquetada.
+    if (/banheiro|wc|lavabo|toilet|bathroom/.test(tag)) return -100;
+    if (/quarto|suite|suíte|studio|sala|living/.test(tag)) return 20;
+    if (/cozinha|kitchen|varanda|balcony/.test(tag)) return 5;
+    return 0;
+  }
+  groups.sort((a, b) =>
+    groupPriority(b) - groupPriority(a) ||
+    // Grupo maior antes ajuda a apresentar um cômodo por completo;
+    // qualidade define a melhor foto DENTRO de cada bloco.
+    Math.min(b.photos.length, 6) * 0.08 - Math.min(a.photos.length, 6) * 0.08 ||
+    bestQuality(b) - bestQuality(a)
+  );
+  const sortedIds: string[] = [];
+  for (const group of groups) {
+    group.photos.sort((a, b) => b.quality - a.quality ||
+      (orderById.get(a.id) ?? 0) - (orderById.get(b.id) ?? 0));
+    sortedIds.push(...group.photos.map(photo => photo.id));
+  }
+  const found = new Set(analyzed.keys());
+  // Imagens que não puderam ser lidas não são apagadas; ficam no final.
+  sortedIds.push(...items.filter(item => !found.has(item.id)).map(item => item.id));
   return {
-    order: [...chosen.map(item => item.id), ...items.filter(item => !recognized.has(item.id)).map(item => item.id)],
-    analyzed: chosen.length,
-    skipped: items.length - chosen.length,
+    order: sortedIds,
+    analyzed: results.length,
+    skipped: items.length - results.length,
+    groups: groups.length,
   };
 }
