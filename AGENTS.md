@@ -1,7 +1,7 @@
 # André Mendes Rooms — instruções para agentes de código
 
 ## Objetivo do produto
-Site de locação em Londres, focado principalmente em pessoas que **já moram em Londres** e querem mudar de quarto, suíte, studio, flat ou casa. Público secundário: pessoas ainda fora do Reino Unido. Atendimento em português, com idiomas adicionais inglês, espanhol, italiano e francês. Prioridade: concluir rapidamente uma versão comercial **premium, segura e utilizável**.
+Site de locação em Londres, aberto a todas as nacionalidades, tanto para pessoas que **já moram em Londres** e querem mudar quanto para quem está planejando chegar do exterior. Atendimento em português, com idiomas adicionais inglês, espanhol, italiano, francês e polonês. Prioridade: concluir rapidamente uma versão comercial **premium, segura e utilizável**.
 
 ## Ambiente
 - Next.js App Router + TypeScript + Tailwind, Supabase e Netlify.
@@ -13,7 +13,7 @@ Site de locação em Londres, focado principalmente em pessoas que **já moram e
 - O código existente contém recursos incrementais. Leia os arquivos atuais: o README pode estar desatualizado.
 
 ## Regras comerciais que não podem ser inventadas
-- O público prioritário **já vive em Londres**. Nunca descrever o negócio como destinado principalmente a quem está se mudando para Londres pela primeira vez.
+- Acolher tanto quem **já vive em Londres** quanto quem planeja chegar do exterior, sem excluir nacionalidades. Não presumir elegibilidade ou prometer reserva antecipada.
 - Imóveis só aparecem no catálogo se `status='available'`, `hidden=false` e `validation_status='ok'`; nunca transformar testes/rascunhos em anúncios públicos.
 - Existência de fotos não comprova disponibilidade, endereço, preço ou comodidades.
 - Preços, depósitos, datas e condições variam por imóvel; mostrar apenas o que estiver confirmado no banco.

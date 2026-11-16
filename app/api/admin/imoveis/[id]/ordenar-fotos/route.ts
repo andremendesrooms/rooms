@@ -40,6 +40,7 @@ export async function POST(
   const { id } = await params;
   if (!/^[A-Za-z0-9_-]{3,100}$/.test(id)) return reply('Referência inválida.', 400);
 
+  if (process.env.ENABLE_PAID_PHOTO_ANALYSIS !== 'true') return reply('Análise paga desativada. Use a organização gratuita no painel.', 503);
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) {
     return reply('IA não configurada. As fotos foram preservadas na ordem original.', 503);
