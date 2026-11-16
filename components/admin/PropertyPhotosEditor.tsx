@@ -10,16 +10,59 @@ type Photo = {
   id: string;
   url: string;
   sort_order: number;
+  room_group?: string | null;
 };
 
 const BUCKET = 'property-images';
 const MAX_FILES = 30;
 const MAX_BYTES = 8 * 1024 * 1024;
+const ROOM_GROUPS = [
+  { value: '', label: 'Automático (por semelhança)' },
+  { value: 'Quarto 1', label: 'Quarto 1' },
+  { value: 'Quarto 2', label: 'Quarto 2' },
+  { value: 'Quarto 3', label: 'Quarto 3' },
+  { value: 'Suíte', label: 'Suíte' },
+  { value: 'Sala', label: 'Sala' },
+  { value: 'Cozinha', label: 'Cozinha' },
+  { value: 'Banheiro 1', label: 'Banheiro 1' },
+  { value: 'Banheiro 2', label: 'Banheiro 2' },
+  { value: 'Corredor/entrada', label: 'Corredor/entrada' },
+  { value: 'Varanda/externo', label: 'Varanda/externo' },
+  { value: 'Outros', label: 'Outros' },
+];
+
 const EXTENSIONS: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
 };
+
+async function fetchPropertyPhotos(propertyId: string): Promise<{
+  data: Photo[]; error: string | null; supportsGroups: boolean;
+}> {
+  const enriched = await adminSupabase.from('property_photos')
+    .select('id,url,sort_order,room_group').eq('property_id', propertyId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+  if (!enriched.error) {
+    return { data: (enriched.data ?? []) as Photo[], error: null, supportsGroups: true };
+  }
+  // Código antigo continua funcionando antes da migração opcional 006.
+  const missingColumn = enriched.error.code === '42703' ||
+    enriched.error.message.toLowerCase().includes('room_group');
+  if (!missingColumn) {
+    return { data: [], error: enriched.error.message, supportsGroups: false };
+  }
+  const legacy = await adminSupabase.from('property_photos')
+    .select('id,url,sort_order').eq('property_id', propertyId)
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
+  return {
+    data: (legacy.data ?? []) as Photo[],
+    error: legacy.error?.message ?? null,
+    supportsGroups: false,
+  };
+}
 
 export default function PropertyPhotosEditor({ propertyId }: { propertyId: string }) {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -29,6 +72,7 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [supportsGroups, setSupportsGroups] = useState(false);
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   // A escolha de pasta exige autorização explícita no navegador.
@@ -40,22 +84,14 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
   }, [loading]);
 
   const reload = useCallback(async () => {
-    const { data, error: listError } = await adminSupabase
-      .from('property_photos')
-      .select('id,url,sort_order')
-      .eq('property_id', propertyId)
-      .order('sort_order', { ascending: true })
-      .order('created_at', { ascending: true });
-    if (listError) {
-      console.error('[admin/photos] Falha ao consultar fotografias:', listError.code, listError.message);
-      setError('Não foi possível consultar as fotografias. Código: ' +
-        (listError.code || 'desconhecido') + '. Detalhe: ' + listError.message);
+    const result = await fetchPropertyPhotos(propertyId);
+    if (result.error) {
+      setError('Não foi possível consultar as fotografias. Detalhe: ' + result.error);
       return;
     }
     setError('');
-    setPhotos((data ?? []).filter(
-      (item): item is Photo => isTrustedPropertyPhotoUrl(item.url)
-    ));
+    setSupportsGroups(result.supportsGroups);
+    setPhotos(result.data.filter(photo => isTrustedPropertyPhotoUrl(photo.url)));
   }, [propertyId]);
 
   useEffect(() => {
@@ -130,11 +166,9 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
         return 'Seu perfil não permite reorganizar fotografias.';
       }
       // Carrega de novo porque fotos recém enviadas podem não estar no estado React.
-      const { data, error: queryError } = await adminSupabase.from('property_photos')
-        .select('id,url,sort_order').eq('property_id', propertyId)
-        .order('sort_order', { ascending: true }).order('created_at', { ascending: true });
-      if (queryError) return 'Erro ao consultar fotos; a ordem não foi modificada.';
-      const current = (data ?? []) as Photo[];
+      const fetched = await fetchPropertyPhotos(propertyId);
+      if (fetched.error) return 'Erro ao consultar fotos; a ordem não foi modificada.';
+      const current = fetched.data;
       if (current.length < 2) return 'Não é necessário organizar uma galeria com menos de 2 fotos.';
       if (current.length > 30) {
         return 'Há mais de 30 fotos neste imóvel. A seleção automática gratuita está limitada a 30 por imóvel.';
@@ -143,7 +177,7 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
         return 'Existem fotos com URLs não reconhecidas. Não alteramos a ordem.';
       }
       const result = await rankPhotosFree(current.map(photo => ({
-        id: photo.id, source: photo.url,
+        id: photo.id, source: photo.url, roomGroup: photo.room_group,
       })));
       if (result.analyzed < 2) {
         return 'Não foi possível analisar fotos suficientes (rede ou CORS). A ordem foi mantida.';
@@ -195,14 +229,12 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
         setNotice('Sessão sem autorização para alterar a capa.');
         return;
       }
-      const { data, error: queryError } = await adminSupabase.from('property_photos')
-        .select('id,url,sort_order').eq('property_id', propertyId)
-        .order('sort_order', { ascending: true }).order('created_at', { ascending: true });
-      if (queryError || !data) {
+      const fetched = await fetchPropertyPhotos(propertyId);
+      if (fetched.error) {
         setNotice('Falha ao consultar a galeria. A ordem não foi alterada.');
         return;
       }
-      const full = data as Photo[];
+      const full = fetched.data;
       const selected = full.find(p => p.id === photoId);
       if (!selected) {
         setNotice('A foto não foi encontrada. Atualize a página.');
@@ -222,6 +254,36 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       setNotice('Foto principal definida manualmente. A próxima importação com seleção automática poderá escolher outra capa.');
     } catch {
       setNotice('Não foi possível definir a capa. Confira a conexão.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function assignRoom(photoId: string, roomGroup: string) {
+    if (busy || !supportsGroups) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const { data: identity } = await adminSupabase.auth.getUser();
+      const { data: member } = await adminSupabase.from('admin_users')
+        .select('role').eq('id', identity.user?.id ?? '')
+        .eq('active', true).maybeSingle();
+      if (!identity.user || !member || !['super_admin', 'manager'].includes(member.role)) {
+        setError('Seu perfil não pode alterar os ambientes.');
+        return;
+      }
+      const { error: updateError } = await adminSupabase.from('property_photos')
+        .update({ room_group: roomGroup || null })
+        .eq('id', photoId).eq('property_id', propertyId);
+      if (updateError) {
+        setError('Não foi possível salvar o ambiente: ' + updateError.message);
+        return;
+      }
+      await reload();
+      setNotice('Ambiente salvo. Use “Reorganizar fotos automaticamente (grátis)” para reunir as fotos do mesmo ambiente.');
+    } catch {
+      setError('Erro ao salvar ambiente. Tente novamente.');
     } finally {
       setBusy(false);
     }
@@ -334,6 +396,20 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
                   <p className="mt-1 text-xs text-slate-soft">
                     {index === 0 ? 'Foto 1 · Capa atual' : 'Foto ' + (index + 1)}
                   </p>
+                  {supportsGroups && (
+                    <label className="mt-2 block text-xs text-slate-soft">
+                      Ambiente
+                      <select value={photo.room_group ?? ''}
+                        aria-label={'Ambiente da foto ' + (index + 1)}
+                        onChange={(e) => void assignRoom(photo.id, e.target.value)}
+                        disabled={busy}
+                        className="mt-1 block w-full rounded-md border border-slate-300 bg-white p-2 text-xs text-ink">
+                        {ROOM_GROUPS.map(group =>
+                          <option key={group.value} value={group.value}>{group.label}</option>
+                        )}
+                      </select>
+                    </label>
+                  )}
                   {index !== 0 && (
                     <button type="button" disabled={busy}
                       onClick={() => void makeCover(photo.id)}
@@ -404,8 +480,11 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
                 {busy ? 'Analisando fotos...' : 'Reorganizar fotos automaticamente (grátis)'}
               </button>
               <p className="mt-2 text-xs text-slate-soft">
-                Esta seleção é gratuita e realizada no navegador. Compara brilho,
-                nitidez e diversidade visual. Não identifica os cômodos.
+                Esta seleção é gratuita e realizada no navegador. Mantém fotos
+                visualmente semelhantes juntas. Não identifica cômodos com certeza.
+                {supportsGroups
+                  ? ' Se algum ambiente ficar misturado, identifique o ambiente das fotos acima e clique novamente.'
+                  : ' Você pode habilitar rótulos de ambiente no Supabase com a migração 006.'}
               </p>
             </div>
           )}
