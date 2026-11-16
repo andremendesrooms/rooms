@@ -161,9 +161,8 @@ export function selectAreaAlternatives(
 
   if (origin && ranked.located > 0) {
     const locatedEntries = ranked.entries.filter(
-      (entry): entry is NearbyEntry & { distanceKm: number } =>
-        entry.distanceKm !== null,
-    );
+      entry => entry.distanceKm !== null,
+    ) as Array<NearbyEntry & { distanceKm: number }>;
     // Expand automatically until a useful set of alternatives is found.
     // Use a single outer bound to avoid flooding the visitor with distant
     // neighbourhoods; clearly distinguish those if none are near enough.
