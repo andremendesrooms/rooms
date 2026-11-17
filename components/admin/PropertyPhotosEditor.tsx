@@ -292,6 +292,78 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
     }
   }
 
+  // Remove apenas o vínculo do catálogo. O arquivo original permanece
+  // no Storage para eventual recuperação; nunca apaga mídia sem confirmação.
+  async function removePhotoFromListing(photoId: string) {
+    if (busy) return;
+    const selected = photos.find((photo) => photo.id === photoId);
+    if (!selected) {
+      setError('Esta foto não foi encontrada. Atualize a galeria.');
+      return;
+    }
+    const isCover = photos[0]?.id === photoId;
+    const question = isCover
+      ? 'Retirar a foto de capa deste imóvel? A próxima fotografia será a capa. Se o anúncio estiver publicado, a alteração ficará visível aos clientes.'
+      : 'Retirar esta fotografia do anúncio? Se o imóvel estiver publicado, ela deixará de aparecer aos clientes.';
+    if (!window.confirm(question + '\\n\\nO arquivo original será preservado no Supabase Storage.')) return;
+
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const { data: identity, error: authError } = await adminSupabase.auth.getUser();
+      if (authError || !identity.user) {
+        setError('Sua sessão expirou. Entre novamente no painel.');
+        return;
+      }
+      const { data: membership, error: membershipError } = await adminSupabase
+        .from('admin_users').select('role')
+        .eq('id', identity.user.id).eq('active', true).maybeSingle();
+      if (membershipError || !membership ||
+          !['super_admin', 'manager'].includes(membership.role)) {
+        setError('Seu perfil não permite retirar fotografias.');
+        return;
+      }
+
+      // Não confiar apenas no estado da página. Confirma se a foto continua
+      // vinculada à mesma unidade e se é uma URL permitida do projeto.
+      const current = await fetchPropertyPhotos(propertyId);
+      if (current.error) {
+        setError('Não foi possível conferir a fotografia antes de retirar.');
+        return;
+      }
+      const existing = current.data.find(photo => photo.id === photoId);
+      if (!existing || existing.url !== selected.url ||
+          !isTrustedPropertyPhotoUrl(existing.url)) {
+        setError('A galeria mudou. Atualize antes de retirar a fotografia.');
+        await reload();
+        return;
+      }
+      const { data: deleted, error: deleteError } = await adminSupabase
+        .from('property_photos')
+        .delete()
+        .eq('property_id', propertyId)
+        .eq('id', photoId)
+        .eq('url', selected.url)
+        .select('id')
+        .maybeSingle();
+      if (deleteError) {
+        setError('Não foi possível retirar a fotografia. Confira as permissões de exclusão na tabela property_photos.');
+        return;
+      }
+      if (!deleted) {
+        setError('A foto não foi retirada: ela pode ter sido modificada em outra sessão. Atualize.');
+        return;
+      }
+      await reload();
+      setNotice('Fotografia retirada da galeria do imóvel. O arquivo continua armazenado no Supabase para possível recuperação.');
+    } catch {
+      setError('Não foi possível retirar a fotografia. Confira sua conexão.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function uploadPhotos() {
     if (busy || !confirmed || files.length === 0) return;
     setError('');
@@ -413,13 +485,20 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
                       </select>
                     </label>
                   )}
-                  {index !== 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {index !== 0 && (
+                      <button type="button" disabled={busy}
+                        onClick={() => void makeCover(photo.id)}
+                        className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-ink disabled:opacity-60">
+                        Definir como capa
+                      </button>
+                    )}
                     <button type="button" disabled={busy}
-                      onClick={() => void makeCover(photo.id)}
-                      className="mt-1 rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-ink disabled:opacity-60">
-                      Definir como capa
+                      onClick={() => void removePhotoFromListing(photo.id)}
+                      className="rounded-md border border-red-200 px-2 py-1 text-xs font-medium text-red-800 disabled:opacity-60">
+                      Retirar foto do anúncio
                     </button>
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
