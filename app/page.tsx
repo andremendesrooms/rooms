@@ -26,7 +26,7 @@ export default async function HomePage() {
       import("@/lib/types").PropertyWithPhotos[],
     ];
   });
-  const cover = available.find((p) => p.photos.length)?.photos[0];
+  // Home editorial independente da galeria: fotos de anúncios e testes não viram banner automaticamente.
   return (
     <div>
       <section className="bg-ink text-white">
@@ -55,30 +55,32 @@ export default async function HomePage() {
               {t("Quartos · Suítes · Studios · Flats · Casas")}
             </p>
           </div>
-          <div className="relative min-h-72 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5">
-            {cover ? (
+          <div className="relative flex min-h-72 overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-[#2b2929] via-ink to-[#3a261c] p-8 sm:p-10">
+            <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full border border-orange-300/20" />
+            <div aria-hidden="true" className="pointer-events-none absolute -bottom-24 right-12 h-64 w-64 rounded-full border border-orange-300/15" />
+            <div className="relative flex w-full flex-col items-start justify-between">
               <Image
-                src={cover}
-                alt={t("Fotografia de um imóvel do catálogo disponível")}
-                fill
-                priority
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                src="/brand/andre-mendes-icon.svg"
+                width={72}
+                height={72}
+                alt=""
+                unoptimized
+                className="rounded-2xl"
               />
-            ) : (
-              <div className="flex h-full min-h-72 flex-col justify-end p-8">
-                <p className="font-display text-4xl">
+              <div className="mt-12">
+                <p className="text-xs font-semibold uppercase tracking-[.22em] text-orange-300">
+                  ANDRÉ MENDES · LONDON ROOMS
+                </p>
+                <p className="mt-3 font-display text-4xl leading-tight text-white sm:text-5xl">
                   {t("Uma nova fase.")}
                   <br />
-                  {t("Um novo endereço.")}
+                  <span className="text-orange-300">{t("Um novo endereço.")}</span>
                 </p>
-                <p className="mt-4 text-white/65">
-                  {t(
-                    "Explore as opções disponíveis ou conte o que você procura.",
-                  )}
+                <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/70">
+                  {t("Explore as opções disponíveis ou conte o que você procura.")}
                 </p>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </section>
