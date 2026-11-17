@@ -176,6 +176,27 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       if (current.length > 30) {
         return 'Há mais de 30 fotos neste imóvel. A seleção automática gratuita está limitada a 30 por imóvel.';
       }
+      // Se TODAS as fotos estão identificadas, não há por que usar uma
+      // heurística visual: os ambientes já conhecidos devem formar blocos,
+      // mesmo quando o navegador não consegue analisar imagens por CORS.
+      if (fetched.supportsGroups && roomGroupSummary(current).untagged === 0) {
+        const ordered = preserveCoverOrder(current, current.map(photo => photo.id));
+        if (ordered.every((id, index) => current[index].id === id)) {
+          await reload();
+          return 'A galeria já está por ambientes: nenhuma seção volta a aparecer mais adiante.';
+        }
+        for (const [index, photoId] of ordered.entries()) {
+          const { error: writeError } = await adminSupabase.from('property_photos')
+            .update({ sort_order: index })
+            .eq('property_id', propertyId).eq('id', photoId);
+          if (writeError) {
+            await reload();
+            return 'Não foi possível finalizar a organização dos ambientes. Confira a ordem e as permissões.';
+          }
+        }
+        await reload();
+        return 'Galeria organizada por ambiente identificado, em blocos contínuos, sem alternar quarto, cozinha e banheiro.';
+      }
       if (!current.every(photo => isTrustedPropertyPhotoUrl(photo.url))) {
         return 'Existem fotos com URLs não reconhecidas. Não alteramos a ordem.';
       }
@@ -202,9 +223,9 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
         }
       }
       await reload();
-      return 'Capa preservada e ambientes agrupados sem API paga: ' + result.analyzed +
-        ' fotografias analisadas.' +
-        (result.skipped ? ' ' + result.skipped + ' imagens ficaram no fim por não poderem ser analisadas.' : '');
+      return 'Agrupamento visual aproximado: ' + result.analyzed +
+        ' fotografias analisadas. Para garantir que um quarto não volte a aparecer depois da cozinha ou banheiro, identifique o ambiente de cada foto e use “Organizar ambientes sem repetição”.' +
+        (result.skipped ? ' ' + result.skipped + ' imagens não puderam ser analisadas.' : '');
     } catch {
       return 'Falha ao analisar imagens localmente. Confira a conexão e tente novamente.';
     }
