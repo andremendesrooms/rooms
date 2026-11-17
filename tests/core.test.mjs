@@ -551,3 +551,26 @@ test("search links preserve type/budget and Google Maps opens public transit", (
   assert.match(maps, /www\.google\.com\/maps\/dir/);
   assert.doesNotMatch(page + maps, /service_role/i);
 });
+
+
+test("home banner never promotes test property photos automatically", () => {
+  const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(home, /available\.find\(\(p\)\s*=>\s*p\.photos\.length/);
+  assert.doesNotMatch(home, /src=\{cover\}/);
+  assert.match(home, /src="\/brand\/andre-mendes-icon\.svg"/);
+  assert.match(home, /<PropertyGrid properties=\{available\}/);
+});
+
+test("admin can unlink an individual photo without silently destroying Storage media", () => {
+  const editor = fs.readFileSync(
+    new URL("../components/admin/PropertyPhotosEditor.tsx", import.meta.url), "utf8");
+  assert.match(editor, /Retirar foto do anúncio/);
+  assert.match(editor, /removePhotoFromListing/);
+  assert.match(editor, /window\.confirm\(/);
+  assert.match(editor, /'super_admin', 'manager'/);
+  assert.match(editor, /\.from\('property_photos'\)/);
+  assert.match(editor, /\.delete\(\)/);
+  assert.match(editor, /\.eq\('property_id', propertyId\)/);
+  assert.match(editor, /\.eq\('id', photoId\)/);
+  assert.doesNotMatch(editor, /\.storage[\s\S]*?\.remove\(/);
+});
