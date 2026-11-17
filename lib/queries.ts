@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { cache } from "react";
 const PUBLIC_PROPERTY_COLUMNS = "id,type,subtype,title,price,price_frequency,bedrooms,bathrooms,occupancy,postcode,region,london_zone,nearest_station,available_from,minimum_stay,move_in_conditions,deposit,bills_included,furnished,garden,balcony,parking,gym,concierge,lift,description,featured,status,created_at,updated_at";
 function publicCatalog() {
   if (
@@ -150,28 +151,30 @@ export async function getPropertyById(
 // Filtros dinâmicos: nascem do que existe de fato em `properties_public`,
 // nunca de uma lista fixa no código. Se não houver Studio hoje, Studio não
 // aparece; se surgir amanhã, aparece sozinho na próxima visita.
-export async function getAvailableTypes(): Promise<string[]> {
+// React request cache (not persistent HTTP caching): both dropdowns share
+// one read during a render, but a subsequent request sees fresh availability.
+// This deliberately does not cache the listings or photos across visitors.
+const getCatalogOptions = cache(async () => {
   const { data, error } = await publicCatalog()
-    .select("type")
+    .select("type,region")
     .eq("status", "available");
   if (error) throw new Error("Catálogo temporariamente indisponível.");
-  if (!data) return [];
-  return Array.from(new Set(data.map((row) => row.type))).sort();
+  const rows = data ?? [];
+  return {
+    types: Array.from(new Set(rows.map((row) => row.type))).sort(),
+    regions: Array.from(new Set(
+      rows.map((row) => row.region)
+        .filter((region): region is string => Boolean(region)),
+    )).sort(),
+  };
+});
+
+export async function getAvailableTypes(): Promise<string[]> {
+  return (await getCatalogOptions()).types;
 }
 
 export async function getAvailableRegions(): Promise<string[]> {
-  const { data, error } = await publicCatalog()
-    .select("region")
-    .eq("status", "available");
-  if (error) throw new Error("Catálogo temporariamente indisponível.");
-  if (!data) return [];
-  return Array.from(
-    new Set(
-      data
-        .map((row) => row.region)
-        .filter((region): region is string => Boolean(region)),
-    ),
-  ).sort();
+  return (await getCatalogOptions()).regions;
 }
 
 // Sugestões quando um imóvel não está mais disponível: mesma região, tipo
