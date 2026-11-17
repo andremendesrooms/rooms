@@ -21,7 +21,7 @@ export default async function HomePage() {
     return [
       { types: [], regions: [] },
       [] as import("@/lib/types").PropertyWithPhotos[],
-    ] as const;
+    ] as [{ types: string[]; regions: string[] }, import("@/lib/types").PropertyWithPhotos[]];
   });
   const { types, regions } = options;
   // Home editorial independente da galeria: fotos de anúncios e testes não viram banner automaticamente.
