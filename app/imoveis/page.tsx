@@ -46,7 +46,7 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
     return [
       { types: [], regions: [] },
       [] as import("@/lib/types").PropertyWithPhotos[],
-    ] as const;
+    ] as [{ types: string[]; regions: string[] }, import("@/lib/types").PropertyWithPhotos[]];
   });
   const { types, regions } = options;
 
