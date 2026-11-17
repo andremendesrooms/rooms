@@ -574,3 +574,57 @@ test("admin can unlink an individual photo without silently destroying Storage m
   assert.match(editor, /\.eq\('id', photoId\)/);
   assert.doesNotMatch(editor, /\.storage[\s\S]*?\.remove\(/);
 });
+
+
+test("gallery never returns to a tagged room after showing another room", () => {
+  const input = [
+    { id: "bed1", room_group: "Quarto 1" },
+    { id: "kitchen1", room_group: "Cozinha" },
+    { id: "bath1", room_group: "Banheiro 1" },
+    { id: "bed2", room_group: "Quarto 1" },
+    { id: "bath2", room_group: "Banheiro 1" },
+    { id: "kitchen2", room_group: "Cozinha" },
+    { id: "bed3", room_group: "Quarto 1" },
+  ];
+  const ids = photos.preserveCoverOrder(input, input.map(p => p.id));
+  assert.deepEqual(Array.from(ids), [
+    "bed1", "bed2", "bed3",
+    "kitchen1", "kitchen2",
+    "bath1", "bath2",
+  ]);
+  assert.equal(new Set(ids).size, input.length);
+  const groups = new Map(input.map(p => [p.id, p.room_group]));
+  const encountered = new Set();
+  let previous = "";
+  for (const id of ids) {
+    const current = groups.get(id);
+    if (current !== previous) {
+      assert.equal(encountered.has(current), false, "environment repeated: " + current);
+      encountered.add(current);
+      previous = current;
+    }
+  }
+});
+
+test("gallery groups normalized labels, leaves untagged images to review", () => {
+  const input = [
+    { id: "a", room_group: " QUARTO 1 " },
+    { id: "b", room_group: " Banheiro 1 " },
+    { id: "c", room_group: "quarto 1" },
+    { id: "d", room_group: null },
+  ];
+  assert.deepEqual(Array.from(photos.preserveCoverOrder(input, ["b", "c", "a", "d"])),
+    ["a", "c", "b", "d"]);
+  assert.equal(photos.roomGroupSummary(input).untagged, 1);
+  assert.equal(photos.roomGroupSummary(input).groups, 2);
+});
+
+test("admin gallery requires all room labels for guaranteed no-repeat sorting", () => {
+  const editor = fs.readFileSync(new URL("../components/admin/PropertyPhotosEditor.tsx", import.meta.url), "utf8");
+  assert.match(editor, /Organizar ambientes sem repetição/);
+  assert.match(editor, /roomGroupSummary\(latest\.data\)/);
+  assert.match(editor, /if \(summary\.untagged\)/);
+  assert.match(editor, /preserveCoverOrder\(latest\.data/);
+  assert.match(editor, /Aplicar ambiente às selecionadas/);
+  assert.match(editor, /supportsGroups/);
+});
