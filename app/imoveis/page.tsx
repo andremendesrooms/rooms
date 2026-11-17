@@ -5,8 +5,7 @@ import PropertyGrid from "@/components/PropertyGrid";
 import NearbyPropertyGrid from "@/components/NearbyPropertyGrid";
 import TrackSearch from "@/components/TrackSearch";
 import {
-  getAvailableRegions,
-  getAvailableTypes,
+  getAvailableSearchOptions,
   getProperties,
 } from "@/lib/queries";
 import { parsePropertyFilters } from "@/lib/filters";
@@ -36,22 +35,20 @@ export default async function ImoveisPage({ searchParams }: PageProps) {
   const filters = parsePropertyFilters(params);
 
   let unavailable = false;
-  const [types, regions, properties] = await Promise.all([
-    getAvailableTypes(),
-    getAvailableRegions(),
+  const [options, properties] = await Promise.all([
+    getAvailableSearchOptions(),
     // Consultar um conjunto maior quando a pessoa pede proximidade. A busca
     // continua limitada à VIEW pública, sem acesso às tabelas administrativas.
-    // Searching by a specific station/place must NOT filter away nearby
-    // neighbourhoods using the separate exact-region dropdown.
+    // A região exata não pode eliminar imóveis dos bairros vizinhos.
     getProperties(near ? { ...filters, region: undefined } : filters, near ? 200 : 48),
   ]).catch(() => {
     unavailable = true;
-    return [[], [], []] as [
-      string[],
-      string[],
-      import("@/lib/types").PropertyWithPhotos[],
-    ];
+    return [
+      { types: [], regions: [] },
+      [] as import("@/lib/types").PropertyWithPhotos[],
+    ] as const;
   });
+  const { types, regions } = options;
 
   let result: AreaSearchResult = {
     kind: "empty", entries: [], radiusKm: null, located: 0,
