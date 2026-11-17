@@ -1,5 +1,5 @@
 'use client';
-import { preserveCoverOrder } from '@/lib/photo-order';
+import { preserveCoverOrder, roomGroupSummary } from '@/lib/photo-order';
 
 import Image from 'next/image';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
@@ -74,6 +74,8 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [supportsGroups, setSupportsGroups] = useState(false);
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<string[]>([]);
+  const [bulkRoomGroup, setBulkRoomGroup] = useState('');
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   // A escolha de pasta exige autorização explícita no navegador.
@@ -364,6 +366,116 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
     }
   }
 
+
+  // Categorias verificadas são fonte da verdade. Sem uma etiqueta em cada
+  // imagem, não existe reconhecimento semântico confiável offline.
+  async function groupByVerifiedRoom() {
+    if (busy) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const { data: identity } = await adminSupabase.auth.getUser();
+      const { data: membership } = await adminSupabase.from('admin_users')
+        .select('role').eq('id', identity.user?.id || '').eq('active', true).maybeSingle();
+      if (!identity.user || !membership ||
+          !['super_admin', 'manager'].includes(membership.role)) {
+        setError('Você não tem permissão para alterar a galeria.');
+        return;
+      }
+      const latest = await fetchPropertyPhotos(propertyId);
+      if (latest.error) {
+        setError('Não foi possível consultar as fotos. ' + latest.error);
+        return;
+      }
+      if (!latest.supportsGroups) {
+        setError('Os ambientes ainda não estão habilitados no Supabase. É necessário aplicar a migration 006.');
+        return;
+      }
+      const summary = roomGroupSummary(latest.data);
+      if (summary.untagged) {
+        setError('Ainda faltam identificar ' + summary.untagged +
+          ' fotografia(s). Selecione Quarto, Cozinha, Banheiro etc. para todas as fotos antes de organizar sem repetição.');
+        return;
+      }
+      const newOrder = preserveCoverOrder(latest.data, latest.data.map(p => p.id));
+      if (newOrder.every((id, index) => latest.data[index].id === id)) {
+        setNotice('Galeria já está organizada: cada ambiente aparece uma única vez, com todas as fotos juntas.');
+        return;
+      }
+      // O índice atual muda somente para estas fotos do imóvel.
+      // Se a RLS barrar uma etapa, mostramos erro e recarregamos.
+      for (const [index, photoId] of newOrder.entries()) {
+        const { error: writeError } = await adminSupabase.from('property_photos')
+          .update({ sort_order: index })
+          .eq('property_id', propertyId).eq('id', photoId);
+        if (writeError) {
+          await reload();
+          setError('Não foi possível finalizar toda a ordem. Revise as permissões e tente novamente.');
+          return;
+        }
+      }
+      await reload();
+      setNotice('Ambientes organizados em blocos. Quarto, cozinha e banheiro não voltam a aparecer após a próxima seção.');
+    } catch {
+      setError('Falha de conexão ao organizar a galeria.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function applyRoomGroupToSelected() {
+    if (busy || !selectedPhotoIds.length || !bulkRoomGroup || !supportsGroups) return;
+    setBusy(true);
+    setError('');
+    setNotice('');
+    try {
+      const { data: identity } = await adminSupabase.auth.getUser();
+      const { data: membership } = await adminSupabase.from('admin_users')
+        .select('role').eq('id', identity.user?.id || '').eq('active', true).maybeSingle();
+      if (!identity.user || !membership ||
+          !['super_admin', 'manager'].includes(membership.role)) {
+        setError('Seu perfil não pode identificar ambientes.');
+        return;
+      }
+      const latest = await fetchPropertyPhotos(propertyId);
+      if (latest.error || !latest.supportsGroups) {
+        setError('Os ambientes estão indisponíveis. Confira a migration 006 no Supabase.');
+        return;
+      }
+      const allowed = new Set(latest.data.map(p => p.id));
+      const targets = selectedPhotoIds.filter(id => allowed.has(id));
+      if (targets.length !== selectedPhotoIds.length) {
+        setError('A galeria mudou. Atualize antes de identificar as fotos.');
+        return;
+      }
+      let updated = 0;
+      for (const photoId of targets) {
+        const { error: writeError } = await adminSupabase.from('property_photos')
+          .update({ room_group: bulkRoomGroup })
+          .eq('property_id', propertyId).eq('id', photoId);
+        if (writeError) {
+          await reload();
+          setError(updated + ' fotografia(s) identificadas; não foi possível completar as demais. Revise antes de organizar.');
+          return;
+        }
+        updated++;
+      }
+      setSelectedPhotoIds([]);
+      await reload();
+      const remaining = roomGroupSummary(latest.data.map(p => ({
+        ...p, room_group: targets.includes(p.id) ? bulkRoomGroup : p.room_group,
+      }))).untagged;
+      setNotice(updated + ' fotografia(s) marcadas como ' + bulkRoomGroup + '. ' +
+        (remaining ? 'Restam ' + remaining + ' sem ambiente.' :
+          'Todas estão identificadas. Clique em “Organizar ambientes sem repetição”.'));
+    } catch {
+      setError('Não foi possível salvar os ambientes. Confira sua conexão.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function uploadPhotos() {
     if (busy || !confirmed || files.length === 0) return;
     setError('');
@@ -458,6 +570,37 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
       <p className="mt-2 text-sm font-medium text-ink">
         Imóvel selecionado: <span className="font-mono">{propertyId}</span>
       </p>
+      {!loading && (
+        <div className="mt-5 rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm text-ink">
+          <p className="font-semibold">Galeria por ambiente — sem repetir o quarto depois da cozinha ou banheiro</p>
+          {supportsGroups ? (
+            <>
+              <p className="mt-1 text-slate-soft">
+                {roomGroupSummary(photos).untagged
+                  ? 'Identifique o ambiente de ' + roomGroupSummary(photos).untagged +
+                    ' foto(s) para organizar sem voltar ao mesmo cômodo.'
+                  : 'Todos os ambientes estão identificados. A organização será por blocos contínuos.'}
+              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button type="button" disabled={busy || !photos.length}
+                  onClick={() => void groupByVerifiedRoom()}
+                  className="rounded-lg bg-ink px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-50">
+                  Organizar ambientes sem repetição
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-slate-soft">
+                Para identificar várias fotos do mesmo lugar, selecione-as abaixo e aplique uma etiqueta de uma só vez.
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-amber-900">
+              Para garantir a ordem por quarto, cozinha e banheiro, é necessário habilitar
+              a coluna room_group no Supabase (migration 006). A organização por semelhança
+              visual sozinha não reconhece cômodos com segurança.
+            </p>
+          )}
+        </div>
+      )}
       {loading ? <p className="mt-5 text-sm">Carregando fotografias...</p> : (
         <>
           {photos.length ? (
@@ -471,6 +614,18 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
                   <p className="mt-1 text-xs text-slate-soft">
                     {index === 0 ? 'Foto 1 · Capa atual' : 'Foto ' + (index + 1)}
                   </p>
+                  {supportsGroups && (
+                    <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-ink">
+                      <input type="checkbox" disabled={busy}
+                        aria-label={'Selecionar foto ' + (index + 1) + ' para marcar ambiente em conjunto'}
+                        checked={selectedPhotoIds.includes(photo.id)}
+                        onChange={(event) => setSelectedPhotoIds(current =>
+                          event.target.checked
+                            ? [...current, photo.id]
+                            : current.filter(id => id !== photo.id))} />
+                      Selecionar para identificar em grupo
+                    </label>
+                  )}
                   {supportsGroups && (
                     <label className="mt-2 block text-xs text-slate-soft">
                       Ambiente
@@ -503,6 +658,30 @@ export default function PropertyPhotosEditor({ propertyId }: { propertyId: strin
               ))}
             </div>
           ) : <p className="mt-4 text-sm text-slate-soft">Nenhuma foto vinculada ainda.</p>}
+          {supportsGroups && selectedPhotoIds.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <label className="min-w-44 flex-1 text-xs font-semibold">
+                Ambiente das {selectedPhotoIds.length} fotos selecionadas
+                <select value={bulkRoomGroup} disabled={busy}
+                  onChange={e => setBulkRoomGroup(e.target.value)}
+                  className="mt-1 block w-full rounded-lg border border-slate-300 bg-white p-2 text-sm">
+                  {ROOM_GROUPS.filter(group => group.value).map(group =>
+                    <option key={group.value} value={group.value}>{group.label}</option>)}
+                  <option value="">Escolha um ambiente...</option>
+                </select>
+              </label>
+              <button type="button" disabled={busy || !bulkRoomGroup}
+                onClick={() => void applyRoomGroupToSelected()}
+                className="rounded-lg bg-ink px-4 py-2.5 text-xs font-semibold text-white disabled:opacity-50">
+                Aplicar ambiente às selecionadas
+              </button>
+              <button type="button" disabled={busy}
+                onClick={() => setSelectedPhotoIds([])}
+                className="rounded-lg border px-3 py-2.5 text-xs">
+                Limpar seleção
+              </button>
+            </div>
+          )}
 
           <div className="mt-6">
             <label htmlFor="property-photo-files" className="block text-sm font-medium text-ink">
