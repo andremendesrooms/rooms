@@ -6,26 +6,24 @@ import QuickSearchForm from "@/components/QuickSearchForm";
 import PropertyGrid from "@/components/PropertyGrid";
 import LeadForm from "@/components/LeadForm";
 import {
-  getAvailableRegions,
-  getAvailableTypes,
+  getAvailableSearchOptions,
   getProperties,
 } from "@/lib/queries";
 export const dynamic = "force-dynamic";
 export default async function HomePage() {
   const t = await getTranslator();
   let unavailable = false;
-  const [types, regions, available] = await Promise.all([
-    getAvailableTypes(),
-    getAvailableRegions(),
+  const [options, available] = await Promise.all([
+    getAvailableSearchOptions(),
     getProperties({}, 6),
   ]).catch(() => {
     unavailable = true;
-    return [[], [], []] as [
-      string[],
-      string[],
-      import("@/lib/types").PropertyWithPhotos[],
-    ];
+    return [
+      { types: [], regions: [] },
+      [] as import("@/lib/types").PropertyWithPhotos[],
+    ] as const;
   });
+  const { types, regions } = options;
   // Home editorial independente da galeria: fotos de anúncios e testes não viram banner automaticamente.
   return (
     <div>
