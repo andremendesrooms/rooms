@@ -34,13 +34,25 @@ export default async function HomePage() {
               {t("Londres • Seu próximo endereço")}
             </p>
             <h1 className="font-display text-5xl leading-[1.08] sm:text-6xl">
-              {t("Seu próximo imóvel em Londres")}{" "}
-              <span className="text-orange-300">{t("está aqui.")}</span>
+              {t("PAGUE COM A CHAVE")}{" "}
+              <span className="text-orange-300">{t("NA MÃO!")}</span>
             </h1>
-            <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/75">
-              {t(
-                "Já mora em Londres e quer mudar? Encontre um espaço para a sua próxima fase, com atendimento em português e condições claras.",
-              )}
+            <p className="mt-6 max-w-lg text-lg font-semibold leading-relaxed text-white">
+              {t("Venha, visite, confira o imóvel, pegue a chave e pague na hora!")}
+            </p>
+            <div className="mt-5 max-w-lg rounded-2xl border border-orange-300/40 bg-white/5 p-4">
+              <p className="text-sm font-bold uppercase tracking-wide text-orange-300">
+                {t("NÃO EXISTE RESERVA DE BOCA!")}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-white/80">
+                {t("Conversas ou promessas verbais não reservam um imóvel. A disponibilidade pode mudar até a formalização da locação.")}
+              </p>
+            </div>
+            <p className="mt-4 max-w-lg text-xs leading-relaxed text-white/70">
+              {t("O pagamento na entrega das chaves vale para imóveis que oferecem essa modalidade. Depósitos, adiantamentos e demais condições devem ser confirmados antes da visita.")}
+            </p>
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/75">
+              {t("Já mora em Londres e quer mudar? Encontre um espaço para a sua próxima fase, com atendimento em português e condições claras.")}
             </p>
             <Link
               href="#busca"
