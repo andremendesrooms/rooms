@@ -27,7 +27,10 @@ export function whatsappLink(
   const message = t(
     "Olá, vi o imóvel {reference} no site e gostaria de saber se ainda está disponível.",
   ).replace("{reference}", () => reference);
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+  const actualMessage = process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE === "1"
+    ? "[TESTE DA PRÉVIA — NÃO É UMA SOLICITAÇÃO DE RESERVA]\\n" + message
+    : message;
+  return `https://wa.me/${number}?text=${encodeURIComponent(actualMessage)}`;
 }
 
 export function propertyLabel(
