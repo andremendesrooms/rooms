@@ -6,7 +6,7 @@
 # PR #3 preview is visual-only: no Supabase data or live WhatsApp actions.
 # The production build still uses its normal Netlify environment variables.
 [context.deploy-preview]
-  command = "NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= NEXT_PUBLIC_WHATSAPP_NUMBER= npm run build"
+  command = "NEXT_PUBLIC_PREVIEW_VISUAL_MODE=1 NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= NEXT_PUBLIC_WHATSAPP_NUMBER= npm run build"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
