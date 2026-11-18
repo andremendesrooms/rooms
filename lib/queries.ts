@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { isVisualPreview, getPreviewProperties, previewProperties } from "./preview-catalog";
 const PUBLIC_PROPERTY_COLUMNS = "id,type,subtype,title,price,price_frequency,bedrooms,bathrooms,occupancy,postcode,region,london_zone,nearest_station,available_from,minimum_stay,move_in_conditions,deposit,bills_included,furnished,garden,balcony,parking,gym,concierge,lift,description,featured,status,created_at,updated_at";
 function publicCatalog() {
   if (
@@ -59,6 +60,7 @@ async function attachPhotos<T extends PropertyPublic>(
 export async function getFeaturedProperties(
   limit = 6,
 ): Promise<PropertyWithPhotos[]> {
+  if (isVisualPreview) return previewProperties.slice(0, limit);
   const { data, error } = await publicCatalog()
     .select(PUBLIC_PROPERTY_COLUMNS)
     .eq("status", "available")
@@ -76,6 +78,7 @@ export async function getFeaturedProperties(
 export async function getNewProperties(
   limit = 6,
 ): Promise<PropertyWithPhotos[]> {
+  if (isVisualPreview) return previewProperties.slice(0, limit);
   const { data, error } = await publicCatalog()
     .select(PUBLIC_PROPERTY_COLUMNS)
     .eq("status", "available")
@@ -93,6 +96,7 @@ export async function getProperties(
   filters: PropertyFilters = {},
   limit = 24,
 ): Promise<PropertyWithPhotos[]> {
+  if (isVisualPreview) return getPreviewProperties(filters, limit);
   let query = publicCatalog()
     .select(PUBLIC_PROPERTY_COLUMNS)
     .eq("status", "available");
@@ -131,6 +135,7 @@ export async function getProperties(
 export async function getPropertyById(
   id: string,
 ): Promise<PropertyWithPhotos | null> {
+  if (isVisualPreview) return previewProperties.find(p => p.id === id) ?? null;
   const { data, error } = await publicCatalog()
     .select(PUBLIC_PROPERTY_COLUMNS)
     .eq("status", "available")
@@ -157,6 +162,10 @@ export async function getAvailableSearchOptions(): Promise<{
   types: string[];
   regions: string[];
 }> {
+  if (isVisualPreview) return {
+    types: [...new Set(previewProperties.map(p => p.type))].sort(),
+    regions: [...new Set(previewProperties.map(p => p.region).filter((v): v is string => !!v))].sort(),
+  };
   const { data, error } = await publicCatalog()
     .select("type,region")
     .eq("status", "available");
@@ -172,6 +181,7 @@ export async function getAvailableSearchOptions(): Promise<{
 }
 
 export async function getAvailableTypes(): Promise<string[]> {
+  if (isVisualPreview) return [...new Set(previewProperties.map(p => p.type))].sort();
   const { data, error } = await publicCatalog()
     .select("type")
     .eq("status", "available");
@@ -181,6 +191,7 @@ export async function getAvailableTypes(): Promise<string[]> {
 }
 
 export async function getAvailableRegions(): Promise<string[]> {
+  if (isVisualPreview) return [...new Set(previewProperties.map(p => p.region).filter((v): v is string => !!v))].sort();
   const { data, error } = await publicCatalog()
     .select("region")
     .eq("status", "available");
@@ -209,6 +220,7 @@ export async function getSimilarProperties(
   reference: Pick<PropertyPublic, "region" | "type" | "price" | "id">,
   limit = 4,
 ): Promise<PropertyWithPhotos[]> {
+  if (isVisualPreview) return previewProperties.filter(p => p.id !== reference.id && (p.region === reference.region || p.type === reference.type)).slice(0, limit);
   let query = publicCatalog()
     .select(PUBLIC_PROPERTY_COLUMNS)
     .eq("status", "available")
