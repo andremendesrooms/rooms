@@ -19,6 +19,7 @@ Site de locação em Londres, aberto a todas as nacionalidades, tanto para pesso
 - Preços, depósitos, datas e condições variam por imóvel; mostrar apenas o que estiver confirmado no banco.
 - Não expor landlord, comissões, notas internas, contato privado ou endereço exato não autorizado.
 - `Pague com a chave na mão` é um diferencial da comunicação, mas não deve ser apresentado como proteção jurídica/garantia universal; confirmar condições no atendimento.
+- **Mensagem aprovada para a home:** slogan primário “PAGUE COM A CHAVE NA MÃO!” acompanhado de “Venha, visite, confira o imóvel, pegue a chave e pague na hora!” e do aviso “NÃO EXISTE RESERVA DE BOCA!”. Conversas ou promessas verbais não reservam um imóvel. Só anuncie pagamento na entrega das chaves para imóveis que comprovadamente oferecem essa modalidade; depósitos e adiantamentos variam e devem ser confirmados previamente.
 - Não criar depoimentos, números de clientes ou métricas fictícias.
 - WhatsApp é o principal canal de conversão. O formulário de procura deve ser curto (tipo, pessoas, orçamento, região, data; residente em Londres ou fora).
 - Clientes que procuram com muita antecedência entram em acompanhamento, sem promessa de reserva do imóvel.
