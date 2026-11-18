@@ -24,6 +24,8 @@ export default function WhatsAppButton({
       </span>
     );
   function handleClick() {
+    // The preview has no Supabase connection and must never record test clicks.
+    if (process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE === "1") return;
     const params = new URLSearchParams(window.location.search);
     // Best-effort: registra o clique para o funil de origem de lead (seção
     // "ORIGEM DO LEAD" da arquitetura). Nunca bloqueia a navegação do usuário
