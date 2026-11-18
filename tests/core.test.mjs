@@ -57,6 +57,30 @@ test("preview postcode search uses only the dated, read-only sample", () => {
   assert.equal(preview.getPreviewProperties({ region: "Tooting Broadway" })
     .some(p => p.postcode === "SW17 9NA"), true);
 });
+test("confirmed WhatsApp number opens clearly labeled preview message", () => {
+  const originalNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+  const originalPreview = process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE;
+  try {
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = "447955899832";
+    process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE = "1";
+    const previewUrl = new URL(format.whatsappLink(
+      "preview-sw17-9na", "Double · Tooting Broadway · SW17 9NA",
+    ));
+    assert.equal(previewUrl.hostname, "wa.me");
+    assert.equal(previewUrl.pathname, "/447955899832");
+    assert.match(previewUrl.searchParams.get("text"), /TESTE DA PRÉVIA/);
+    assert.match(previewUrl.searchParams.get("text"), /SW17 9NA/);
+    process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE = "0";
+    const productionMessage = new URL(format.whatsappLink("real-id", "Room"))
+      .searchParams.get("text");
+    assert.doesNotMatch(productionMessage, /TESTE DA PRÉVIA/);
+  } finally {
+    if (originalNumber === undefined) delete process.env.NEXT_PUBLIC_WHATSAPP_NUMBER;
+    else process.env.NEXT_PUBLIC_WHATSAPP_NUMBER = originalNumber;
+    if (originalPreview === undefined) delete process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE;
+    else process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE = originalPreview;
+  }
+});
 test("photo ordering preserves cover, originals, and complete manual room groups", () => {
   const current = [
     { id: "b", room_group: "Bedroom" },
