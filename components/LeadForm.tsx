@@ -28,8 +28,10 @@ export default function LeadForm() {
           .filter(([key]) => key !== "consent")
           .map(([key, value]) => `${t(fieldLabels[key] || key)}: ${value}`)
           .join("\n");
+        const previewPrefix = process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE === "1"
+          ? "[TESTE DA PRÉVIA — NÃO É UMA SOLICITAÇÃO DE RESERVA]\n" : "";
         window.open(
-          `https://wa.me/${number}?text=${encodeURIComponent(t("Olá! Estou procurando um imóvel.") + "\n" + message)}`,
+          `https://wa.me/${number}?text=${encodeURIComponent(previewPrefix + t("Olá! Estou procurando um imóvel.") + "\n" + message)}`,
           "_blank",
           "noopener,noreferrer",
         );
