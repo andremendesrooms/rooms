@@ -1142,5 +1142,53 @@
     "it": "Nessuna offerta soddisfa i filtri o non è stato possibile trovare la zona. Prova una stazione o un codice postale completo.",
     "fr": "Aucune offre ne correspond aux filtres ou le lieu n'a pas été trouvé. Essayez une station ou un code postal complet.",
     "pl": "Brak ofert pasujących do filtrów lub nie znaleziono lokalizacji. Spróbuj podać stację lub pełny kod pocztowy."
+  },
+  "PAGUE COM A CHAVE": {
+    "pt": "PAGUE COM A CHAVE",
+    "en": "PAY WHEN YOU HAVE",
+    "es": "PAGA CON LAS LLAVES",
+    "it": "PAGA CON LE CHIAVI",
+    "fr": "PAYEZ AVEC LES CLÉS",
+    "pl": "ZAPŁAĆ DOPIERO"
+  },
+  "NA MÃO!": {
+    "pt": "NA MÃO!",
+    "en": "THE KEYS!",
+    "es": "¡EN LA MANO!",
+    "it": "IN MANO!",
+    "fr": "EN MAIN !",
+    "pl": "PO OTRZYMANIU KLUCZY!"
+  },
+  "Venha, visite, confira o imóvel, pegue a chave e pague na hora!": {
+    "pt": "Venha, visite, confira o imóvel, pegue a chave e pague na hora!",
+    "en": "Come, view and check the property, collect the keys and pay on the spot!",
+    "es": "¡Ven, visita y comprueba el inmueble, recibe las llaves y paga en el momento!",
+    "it": "Vieni, visita e controlla l'immobile, ritira le chiavi e paga sul posto!",
+    "fr": "Venez visiter et vérifier le logement, récupérez les clés et payez sur place !",
+    "pl": "Przyjdź, obejrzyj i sprawdź nieruchomość, odbierz klucze i zapłać na miejscu!"
+  },
+  "NÃO EXISTE RESERVA DE BOCA!": {
+    "pt": "NÃO EXISTE RESERVA DE BOCA!",
+    "en": "NO VERBAL RESERVATIONS!",
+    "es": "¡NO SE ACEPTAN RESERVAS VERBALES!",
+    "it": "NESSUNA PRENOTAZIONE VERBALE!",
+    "fr": "AUCUNE RÉSERVATION VERBALE !",
+    "pl": "NIE MA REZERWACJI USTNYCH!"
+  },
+  "Conversas ou promessas verbais não reservam um imóvel. A disponibilidade pode mudar até a formalização da locação.": {
+    "pt": "Conversas ou promessas verbais não reservam um imóvel. A disponibilidade pode mudar até a formalização da locação.",
+    "en": "Conversations or verbal promises do not reserve a property. Availability may change until the tenancy is formally agreed.",
+    "es": "Las conversaciones o promesas verbales no reservan un inmueble. La disponibilidad puede cambiar hasta que se formalice el alquiler.",
+    "it": "Le conversazioni o le promesse verbali non riservano un immobile. La disponibilità può cambiare fino alla formalizzazione della locazione.",
+    "fr": "Les échanges ou promesses verbales ne réservent pas un logement. La disponibilité peut changer jusqu'à la formalisation de la location.",
+    "pl": "Rozmowy ani ustne obietnice nie stanowią rezerwacji nieruchomości. Dostępność może się zmienić do czasu formalnego zawarcia najmu."
+  },
+  "O pagamento na entrega das chaves vale para imóveis que oferecem essa modalidade. Depósitos, adiantamentos e demais condições devem ser confirmados antes da visita.": {
+    "pt": "O pagamento na entrega das chaves vale para imóveis que oferecem essa modalidade. Depósitos, adiantamentos e demais condições devem ser confirmados antes da visita.",
+    "en": "Payment on key handover applies only to properties that offer this option. Confirm deposits, advance payments and other terms before viewing.",
+    "es": "El pago al recibir las llaves se aplica solo a inmuebles que ofrecen esta opción. Confirma los depósitos, anticipos y demás condiciones antes de la visita.",
+    "it": "Il pagamento alla consegna delle chiavi vale solo per gli immobili che offrono questa modalità. Conferma caparre, anticipi e altre condizioni prima della visita.",
+    "fr": "Le paiement à la remise des clés ne concerne que les logements proposant cette option. Confirmez dépôt, avances et autres conditions avant la visite.",
+    "pl": "Płatność przy odbiorze kluczy dotyczy tylko nieruchomości oferujących tę opcję. Przed oglądaniem potwierdź kaucję, zaliczki i pozostałe warunki."
   }
 }
