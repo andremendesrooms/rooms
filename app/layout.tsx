@@ -48,6 +48,11 @@ export default async function RootLayout({
       >
         <LanguageProvider language={await getLanguage()}>
           <Header />
+          {process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE === "1" && (
+            <aside role="status" className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-amber-950">
+              PRÉVIA DE TESTE — Amostra de 23 registros extraídos do catálogo de 18/11/2026. Preços e disponibilidade não confirmados. Sem fotos e sem reservas. Não é o site oficial.
+            </aside>
+          )}
           <main>{children}</main>
           <Footer />
         </LanguageProvider>
