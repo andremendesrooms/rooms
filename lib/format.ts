@@ -28,7 +28,7 @@ export function whatsappLink(
     "Olá, vi o imóvel {reference} no site e gostaria de saber se ainda está disponível.",
   ).replace("{reference}", () => reference);
   const actualMessage = process.env.NEXT_PUBLIC_PREVIEW_VISUAL_MODE === "1"
-    ? "[TESTE DA PRÉVIA — NÃO É UMA SOLICITAÇÃO DE RESERVA]\\n" + message
+    ? "[TESTE DA PRÉVIA — NÃO É UMA SOLICITAÇÃO DE RESERVA]\n" + message
     : message;
   return `https://wa.me/${number}?text=${encodeURIComponent(actualMessage)}`;
 }
