@@ -43,6 +43,20 @@ const photos = load("lib/photo-order.ts");
 const publication = load("lib/publication.ts");
 const format = load("lib/format.ts");
 const media = load("lib/photo-url.ts");
+const preview = load("lib/preview-catalog.ts");
+
+test("preview postcode search uses only the dated, read-only sample", () => {
+  assert.equal(preview.isVisualPreview, false);
+  const exact = preview.getPreviewProperties({}, 100)
+    .filter(p => p.postcode === "SW17 9NA");
+  assert.equal(exact.length, 1);
+  assert.equal(exact[0].price, 210);
+  assert.equal(exact[0].photos.length, 0);
+  assert.equal(preview.getPreviewProperties({ maxPrice: 200 })
+    .some(p => p.postcode === "SW17 9NA"), false);
+  assert.equal(preview.getPreviewProperties({ region: "Tooting Broadway" })
+    .some(p => p.postcode === "SW17 9NA"), true);
+});
 test("photo ordering preserves cover, originals, and complete manual room groups", () => {
   const current = [
     { id: "b", room_group: "Bedroom" },
@@ -189,6 +203,7 @@ function mockQueries(responses = {}) {
     api: load("lib/queries.ts", {
       "./supabase": { supabase },
       "./photo-url": media,
+      "./preview-catalog": preview,
     }),
   };
 }
