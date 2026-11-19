@@ -16,6 +16,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // Client Components: usa só a anon key, e toda proteção real vem das
 // policies de RLS já configuradas no banco (anon só enxerga `properties_public`
 // e o que as policies explicitamente liberam).
-export const supabase = createClient(supabaseUrl ?? '', supabaseAnonKey ?? '', {
+export const supabase = createClient(supabaseUrl || 'https://configuration-missing.invalid', supabaseAnonKey || 'configuration-missing', {
   auth: { persistSession: false },
 });

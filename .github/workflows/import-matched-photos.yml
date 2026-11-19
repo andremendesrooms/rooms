@@ -1,0 +1,29 @@
+name: Import matched property photos
+on:
+  workflow_dispatch:
+    inputs:
+      max_files:
+        description: 'Maximum number of pending images to transfer (1-30)'
+        required: false
+        default: '10'
+permissions:
+  contents: read
+concurrency:
+  group: amr-drive-photo-import
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Import only exact matches to hidden drafts
+        run: node scripts/sync-drive-photos.mjs
+        env:
+          GOOGLE_DRIVE_SA_CLIENT_EMAIL: ${{ secrets.GOOGLE_DRIVE_SA_CLIENT_EMAIL }}
+          GOOGLE_DRIVE_SA_PRIVATE_KEY: ${{ secrets.GOOGLE_DRIVE_SA_PRIVATE_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MAX_FILES_PER_RUN: ${{ inputs.max_files }}

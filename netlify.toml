@@ -1,6 +1,13 @@
 [build]
+  ignore = "node scripts/netlify-ignore.cjs"
   command = "npm run build"
   publish = ".next"
+
+# PR #3 preview uses mock catalog only, WITHOUT Supabase credentials.
+# WhatsApp is enabled ONLY in this preview with the confirmed business number;
+# preview messages must be clearly marked as tests. Production remains unchanged.
+[context.deploy-preview]
+  command = "NEXT_PUBLIC_PREVIEW_VISUAL_MODE=1 NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= NEXT_PUBLIC_WHATSAPP_NUMBER=447955899832 npm run build"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
