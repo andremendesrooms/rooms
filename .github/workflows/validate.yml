@@ -16,6 +16,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: node --check scripts/sync-drive-photos.mjs
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
